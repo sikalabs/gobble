@@ -7,8 +7,8 @@ type ConfigMeta struct {
 }
 
 type ConfigHost struct {
-	SSHTarget string            `yaml:"ssh_target"`
-	Vars      map[string]string `yaml:"vars"`
+	SSHTarget string                 `yaml:"ssh_target"`
+	Vars      map[string]interface{} `yaml:"vars"`
 }
 
 type Config struct {

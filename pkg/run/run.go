@@ -7,6 +7,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task"
+	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
 )
 
@@ -22,27 +23,33 @@ func Run(dryRun bool) error {
 		return err
 	}
 
-	if c.Meta.SchemaVersion != 1 {
+	if c.Meta.SchemaVersion != 2 {
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
 	for _, play := range c.Plays {
 		for _, t := range play.Tasks {
-			for _, host := range c.Hosts[play.Hosts] {
-				fmt.Println(`+ play:`, play.Name)
-				fmt.Println(`  host:`, host.SSHTarget)
-				fmt.Println(`  task:`, t.Name)
-				taskInput := libtask.TaskInput{
-					SSHTarget: host.SSHTarget,
-					Config:    c,
-					Vars:      host.Vars,
-					Dry:       dryRun,
+			for globalHostName, globalHost := range c.Hosts {
+				for _, host := range globalHost {
+					if !slices.Contains(play.Hosts, globalHostName) {
+						continue
+					}
+
+					fmt.Println(`+ play:`, play.Name)
+					fmt.Println(`  host:`, host.SSHTarget)
+					fmt.Println(`  task:`, t.Name)
+					taskInput := libtask.TaskInput{
+						SSHTarget: host.SSHTarget,
+						Config:    c,
+						Vars:      host.Vars,
+						Dry:       dryRun,
+					}
+					out := task.Run(taskInput, t)
+					if out.Error != nil {
+						return out.Error
+					}
+					fmt.Println(``)
 				}
-				out := task.Run(taskInput, t)
-				if out.Error != nil {
-					return out.Error
-				}
-				fmt.Println(``)
 			}
 		}
 	}

@@ -3,7 +3,7 @@ package libtask
 type TaskInput struct {
 	SSHTarget string
 	Config    interface{}
-	Vars      map[string]string
+	Vars      map[string]interface{}
 	Dry       bool
 }
 
