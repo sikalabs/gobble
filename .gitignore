@@ -21,3 +21,4 @@ cobra-docs
 # Gobble
 gobblefile.yml
 gobblefile.yaml
+!/examples/**/gobblefile.yml
