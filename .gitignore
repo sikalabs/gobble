@@ -14,3 +14,7 @@ gobble
 *.exe
 /dist/**
 cobra-docs
+
+# Gobble
+gobblefile.yml
+gobblefile.yaml
