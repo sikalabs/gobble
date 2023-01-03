@@ -1,0 +1,60 @@
+meta:
+  schema_version: 2
+hosts:
+  proxy:
+    - ssh_target: root@test1.sikademo.com
+  backends:
+    - ssh_target: root@test2.sikademo.com
+      vars:
+        backend: test2.sikademo.com
+        msg:  Gobble 2
+    - ssh_target: root@test3.sikademo.com
+      vars:
+        backend: test3.sikademo.com
+        msg: Gobble 3
+    - ssh_target: root@test4.sikademo.com
+      vars:
+        backend: test4.sikademo.com
+        msg: Gobble 4
+plays:
+  - name:  Proxy
+    hosts: [proxy]
+    tasks:
+      - name: Install HAProxy
+        apt_install:
+          name: haproxy
+      - name: Config HAProxy
+        templete:
+          path: /etc/haproxy/haproxy.cfg
+          template: |
+            defaults
+              mode http
+              timeout client 10s
+              timeout connect 5s
+              timeout server 10s
+              timeout http-request 10s
+
+            frontend http
+              bind 0.0.0.0:80
+              default_backend http
+
+            backend http
+              {{ range $i, $server := .Config.Hosts.backends }}
+              server backend{{$i}} {{$server.Vars.backend}}:80
+              {{ end }}
+      - name: Restart HAProxy
+        command:
+          cmd: service haproxy restart
+  - name:  Backends
+    hosts: [backends]
+    tasks:
+      - name: Install Nginx
+        apt_install:
+          name: nginx
+      - name: Create index.html
+        templete:
+          path: /var/www/html/index.html
+          template: <h1>Gobble {{.Vars.msg}}</h1>{{ printf "\n" }}
+      - name: Start Nginx
+        command:
+          cmd: service nginx start
