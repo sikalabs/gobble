@@ -16,3 +16,6 @@ plays:
         templete:
           path: /var/www/html/index.html
           template: <h1>{{.Vars.msg}}</h1>{{ printf "\n" }}
+      - name: Start Nginx
+        command:
+          cmd: systemctl start nginx
