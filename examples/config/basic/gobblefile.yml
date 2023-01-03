@@ -1,0 +1,18 @@
+meta:
+  schema_version: 2
+hosts:
+  all:
+    - ssh_target: root@gobble-example.sikademo.com
+      vars:
+        msg: Gobble Gobble!
+plays:
+  - name: Nginx Example
+    hosts: [all]
+    tasks:
+      - name: Install Nginx
+        apt_install:
+          name: nginx
+      - name: Create index.html
+        templete:
+          path: /var/www/html/index.html
+          template: <h1>{{.Vars.msg}}</h1>{{ printf "\n" }}
