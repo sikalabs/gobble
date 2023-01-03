@@ -8,6 +8,9 @@
 # Generic
 *.log
 *.backup
+*.local.yml
+*.local.yaml
+*.local.sh
 
 # Go
 gobble
