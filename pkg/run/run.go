@@ -11,10 +11,14 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func Run(dryRun bool, onlyTags []string) error {
+func Run(
+	configFilePath string,
+	dryRun bool,
+	onlyTags []string,
+) error {
 	c := config.Config{}
 
-	buf, err := ioutil.ReadFile("gobblefile.yml")
+	buf, err := ioutil.ReadFile(configFilePath)
 	if err != nil {
 		return err
 	}

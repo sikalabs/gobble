@@ -10,6 +10,7 @@ import (
 
 var FlagDryRun bool
 var FlagOnlyTags []string
+var FlagConfigFilePath string
 
 var Cmd = &cobra.Command{
 	Use:     "run",
@@ -17,7 +18,7 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"r"},
 	Args:    cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
-		err := run.Run(FlagDryRun, FlagOnlyTags)
+		err := run.Run(FlagConfigFilePath, FlagDryRun, FlagOnlyTags)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -26,6 +27,13 @@ var Cmd = &cobra.Command{
 
 func init() {
 	root.Cmd.AddCommand(Cmd)
+	Cmd.Flags().StringVarP(
+		&FlagConfigFilePath,
+		"config",
+		"c",
+		"gobblefile.yml",
+		"Path to config file",
+	)
 	Cmd.Flags().BoolVar(
 		&FlagDryRun,
 		"dry-run",
