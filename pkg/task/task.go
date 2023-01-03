@@ -13,6 +13,7 @@ import (
 
 type Task struct {
 	Name       string                     `yaml:"name"`
+	Tags       []string                   `yaml:"tags"`
 	AptInstall apt_install.TaskAptInstall `yaml:"apt_install"`
 	Cp         cp.TaskCp                  `yaml:"cp"`
 	Templete   template.TaskTemplete      `yaml:"templete"`

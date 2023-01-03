@@ -9,6 +9,7 @@ import (
 )
 
 var FlagDryRun bool
+var FlagOnlyTags []string
 
 var Cmd = &cobra.Command{
 	Use:     "run",
@@ -16,7 +17,7 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"r"},
 	Args:    cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
-		err := run.Run(FlagDryRun)
+		err := run.Run(FlagDryRun, FlagOnlyTags)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -30,5 +31,11 @@ func init() {
 		"dry-run",
 		false,
 		"Dry run",
+	)
+	Cmd.Flags().StringSliceVar(
+		&FlagOnlyTags,
+		"only-tag",
+		[]string{},
+		"Run only selected task by tags",
 	)
 }

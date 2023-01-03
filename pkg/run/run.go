@@ -11,7 +11,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func Run(dryRun bool) error {
+func Run(dryRun bool, onlyTags []string) error {
 	c := config.Config{}
 
 	buf, err := ioutil.ReadFile("gobblefile.yml")
@@ -33,6 +33,18 @@ func Run(dryRun bool) error {
 				for _, host := range globalHost {
 					if !slices.Contains(play.Hosts, globalHostName) {
 						continue
+					}
+
+					if len(onlyTags) > 0 {
+						skip := true
+						for _, tag := range onlyTags {
+							if slices.Contains(t.Tags, tag) {
+								skip = false
+							}
+						}
+						if skip {
+							continue
+						}
 					}
 
 					fmt.Println(`+ play:`, play.Name)
