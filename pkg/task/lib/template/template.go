@@ -1,12 +1,14 @@
 package template
 
 import (
+	"fmt"
 	"os"
 	text_template "text/template"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/cp"
+	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
 type TaskTemplete struct {
@@ -40,6 +42,11 @@ func Run(
 		return libtask.TaskOutput{
 			Error: err,
 		}
+	}
+	if taskInput.Dry {
+		fmt.Println("cat > " + tmpFile.Name() + " <<EOF")
+		exec_utils.RawExecStdout("cat", tmpFile.Name())
+		fmt.Println("EOF")
 	}
 	out := cp.Run(taskInput, cp.TaskCp{
 		LocalSrc:  tmpFile.Name(),
