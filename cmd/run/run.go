@@ -15,7 +15,7 @@ var FlagConfigFilePath string
 var Cmd = &cobra.Command{
 	Use:     "run",
 	Short:   "Run gobblefile.yml",
-	Aliases: []string{"r"},
+	Aliases: []string{"gobble", "r"},
 	Args:    cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
 		err := run.Run(FlagConfigFilePath, FlagDryRun, FlagOnlyTags)
