@@ -12,7 +12,8 @@ type ConfigHost struct {
 }
 
 type GlobalConfig struct {
-	NoStrictHostKeyChecking bool `yaml:"no_strict_host_key_checking"`
+	NoStrictHostKeyChecking bool                   `yaml:"no_strict_host_key_checking"`
+	Vars                    map[string]interface{} `yaml:"vars"`
 }
 
 type Config struct {

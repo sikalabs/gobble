@@ -60,7 +60,7 @@ func Run(
 						Config:                  c,
 						NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
 						Sudo:                    play.Sudo,
-						Vars:                    host.Vars,
+						Vars:                    mergeMaps(c.Global.Vars, host.Vars),
 						Dry:                     dryRun,
 					}
 					out := task.Run(taskInput, t)
@@ -74,4 +74,11 @@ func Run(
 	}
 
 	return nil
+}
+
+func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
+	for k, v := range m2 {
+		m1[k] = v
+	}
+	return m1
 }
