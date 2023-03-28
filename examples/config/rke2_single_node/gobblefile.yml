@@ -1,0 +1,82 @@
+meta:
+  schema_version: 3
+hosts:
+  node:
+    - ssh_target: root@gobble-example-rke2-simple-node.sikademo.com
+plays:
+  - name: Setup Cluster
+    hosts: [node]
+    tags: [cluster]
+    tasks:
+      - name: Create /etc/rancher/rke2 dir
+        command:
+          cmd: mkdir -p /etc/rancher/rke2
+
+      - name: Create /etc/rancher/rke2/config.yaml
+        template:
+          path: /etc/rancher/rke2/config.yaml
+          template: |
+            disable:
+              - rke2-ingress-nginx
+
+      - name: Install requirements
+        command:
+          cmd: apt update && apt install -y curl git open-iscsi nfs-common
+
+      - name: Install slu
+        command:
+          cmd: curl -fsSL https://raw.githubusercontent.com/sikalabs/slu/master/install.sh | sh
+
+      - name: Install RKE2
+        command:
+          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' sh -
+
+      - name: Enable RKE2
+        command:
+          cmd: systemctl enable rke2-server.service
+
+      - name: Start RKE2
+        command:
+          cmd: systemctl start rke2-server.service
+
+      - name: Install kubectl (using slu)
+        command:
+          cmd: slu install-bin kubectl
+
+      - name: Install helm (using slu)
+        command:
+          cmd: slu install-bin helm
+
+      - name: Create ~/.kube dir
+        command:
+          cmd: mkdir -p /root/.kube
+
+      - name: Create ~/.kube/config
+        command:
+          cmd: rm -rf /root/.kube/config && ln -s /etc/rancher/rke2/rke2.yaml /root/.kube/config
+
+      - name: Try it!
+        print:
+          template: |
+            ssh root@gobble-example-rke2-simple-node.sikademo.com kubectl get nodes
+
+  - name: Setup Workload
+    hosts: [node]
+    tags: [workload]
+    tasks:
+      - name: Install Cluster Essentials (ingress-nginx, cert-manager, cluster issuer)
+        command:
+          cmd: slu scripts kubernetes install-all --base-domain gobble-example-rke2-simple-node.sikademo.com --no-argocd
+
+      - name: Install Hello World App
+        command:
+          cmd: slu scripts kubernetes install-hello-world --host gobble-example-rke2-simple-node.sikademo.com
+
+      - name: Wait for valit TLS certificate
+        command:
+          cmd: slu wait-for tls -a gobble-example-rke2-simple-node.sikademo.com:443
+
+      - name: Try it!
+        print:
+          template: |
+            See: https://gobble-example-rke2-simple-node.sikademo.com
