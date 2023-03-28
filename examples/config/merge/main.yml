@@ -1,0 +1,18 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+  vars:
+    msg: Gobble!
+hosts:
+  localhost:
+    - ssh_target: 127.0.0.1
+plays:
+  - name: Say
+    hosts: [localhost]
+    sudo: false
+    tasks:
+      - name: Say
+        print:
+          template: |
+            Say: {{.Vars.msg}}

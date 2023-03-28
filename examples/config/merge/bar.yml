@@ -1,0 +1,5 @@
+hosts:
+  localhost:
+    - ssh_target: 127.0.0.1
+      vars:
+        msg: Gobble Gobble Gobble!
