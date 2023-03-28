@@ -6,6 +6,7 @@ import (
 	"io/ioutil"
 	"os"
 
+	"github.com/mohae/deepcopy"
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task"
@@ -73,10 +74,11 @@ func Run(
 }
 
 func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
+	deepCopyM1 := deepcopy.Copy(m1).(map[string]interface{})
 	for k, v := range m2 {
-		m1[k] = v
+		deepCopyM1[k] = v
 	}
-	return m1
+	return deepCopyM1
 }
 
 func readConfigFile(configFilePath string) (config.Config, error) {
