@@ -32,23 +32,23 @@ func Run(
 	}
 
 	for _, play := range c.Plays {
+		if len(onlyTags) > 0 {
+			skip := true
+			for _, tag := range onlyTags {
+				if slices.Contains(play.Tags, tag) {
+					skip = false
+				}
+			}
+			if skip {
+				continue
+			}
+		}
+
 		for _, t := range play.Tasks {
 			for globalHostName, globalHost := range c.Hosts {
 				for _, host := range globalHost {
 					if !slices.Contains(play.Hosts, globalHostName) {
 						continue
-					}
-
-					if len(onlyTags) > 0 {
-						skip := true
-						for _, tag := range onlyTags {
-							if slices.Contains(t.Tags, tag) {
-								skip = false
-							}
-						}
-						if skip {
-							continue
-						}
 					}
 
 					fmt.Println(`+ play:`, play.Name)
