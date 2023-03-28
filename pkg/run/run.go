@@ -16,13 +16,7 @@ func Run(
 	dryRun bool,
 	onlyTags []string,
 ) error {
-	c := config.Config{}
-
-	buf, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		return err
-	}
-	_ = yaml.Unmarshal(buf, &c)
+	c, err := readConfigFile(configFilePath)
 	if err != nil {
 		return err
 	}
@@ -81,4 +75,19 @@ func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
 		m1[k] = v
 	}
 	return m1
+}
+
+func readConfigFile(configFilePath string) (config.Config, error) {
+	c := config.Config{}
+
+	buf, err := ioutil.ReadFile(configFilePath)
+	if err != nil {
+		return c, err
+	}
+	_ = yaml.Unmarshal(buf, &c)
+	if err != nil {
+		return c, err
+	}
+
+	return c, nil
 }
