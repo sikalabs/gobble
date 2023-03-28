@@ -11,7 +11,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
-type TaskTemplete struct {
+type TaskTemplate struct {
 	Path      string      `yaml:"path"`
 	Template  string      `yaml:"template"`
 	ExtraData interface{} `yaml:"extra_data"`
@@ -19,7 +19,7 @@ type TaskTemplete struct {
 
 func Run(
 	taskInput libtask.TaskInput,
-	taskParams TaskTemplete,
+	taskParams TaskTemplate,
 ) libtask.TaskOutput {
 	tmpl, err := text_template.New("template").Parse(taskParams.Template)
 	if err != nil {

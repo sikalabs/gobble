@@ -24,7 +24,7 @@ plays:
         apt_install:
           name: haproxy
       - name: Config HAProxy
-        templete:
+        template:
           path: /etc/haproxy/haproxy.cfg
           template: |
             defaults
@@ -52,7 +52,7 @@ plays:
         apt_install:
           name: nginx
       - name: Create index.html
-        templete:
+        template:
           path: /var/www/html/index.html
           template: <h1>Gobble {{.Vars.msg}}</h1>{{ printf "\n" }}
       - name: Start Nginx

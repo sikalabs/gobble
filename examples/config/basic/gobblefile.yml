@@ -13,7 +13,7 @@ plays:
         apt_install:
           name: nginx
       - name: Create index.html
-        templete:
+        template:
           path: /var/www/html/index.html
           template: <h1>{{.Vars.msg}}</h1>{{ printf "\n" }}
       - name: Start Nginx

@@ -16,7 +16,7 @@ type Task struct {
 	Tags       []string                   `yaml:"tags"`
 	AptInstall apt_install.TaskAptInstall `yaml:"apt_install"`
 	Cp         cp.TaskCp                  `yaml:"cp"`
-	Templete   template.TaskTemplete      `yaml:"templete"`
+	Template   template.TaskTemplate      `yaml:"template"`
 	Command    command.TaskCommand        `yaml:"command"`
 	Chmod      chmod.TaskChmod            `yaml:"chmod"`
 }
@@ -30,8 +30,8 @@ func Run(
 		return apt_install.Run(taskInput, task.AptInstall)
 	case task.Cp.LocalSrc != "":
 		return cp.Run(taskInput, task.Cp)
-	case task.Templete.Path != "":
-		return template.Run(taskInput, task.Templete)
+	case task.Template.Path != "":
+		return template.Run(taskInput, task.Template)
 	case task.Command.Cmd != "":
 		return command.Run(taskInput, task.Command)
 	case task.Chmod.Path != "":
