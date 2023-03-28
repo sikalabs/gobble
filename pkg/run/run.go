@@ -27,7 +27,7 @@ func Run(
 		return err
 	}
 
-	if c.Meta.SchemaVersion != 2 {
+	if c.Meta.SchemaVersion != 3 {
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
