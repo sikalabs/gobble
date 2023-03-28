@@ -1,0 +1,12 @@
+meta:
+  schema_version: 3
+hosts:
+  all:
+    - ssh_target: root@gobble-example.sikademo.com
+plays:
+  - name: Add SSH Key
+    hosts: [all]
+    tasks:
+      - name:  Add SSH Key
+        authorized_key:
+          key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCq34+kvNuynOaNL5FwiOccLoCjYFR6TIQWLZUhC+p82t8PQ96Hb/T7IltrPxwbhuMd3UncamSnBb1ABKiavemoQ//SpC+/y59fkNxSRHKGbQec+nzylnFVZLFvkA07FjFBbTt0RYDsrRd0e+NgVmrLvQubO3MdCmIudUn17P16aUZhhAhnfMTNZbgCAVDcHS1fvk+OFtdMMjwzHyrV/4TgjTbNPPU02m8oZD4RYqWqq5SdLScsCUeIlB/FKHelxRDsc7V/5az7ywb3ZpWOk7wP6UAfGjMBzf8Zn6OEgprhnWKhDA90WPfsUhh9Sq99DgGBRUfHDYWJBc0KfssgZmdCEw2qNMp4eSXTya52LfI+4M+/pbjaA3aK6Cr6ecbDX8bwVcHWumZ7uXWLOmFcJRDn2iwFpzJUmAsNHhhyQFmMiYU0TWyWsQKz/s8UJH2F7WLoviP62vzSI0ttSmD2eNrlrFj+iRowTyrPe1E1jPBEhVpoZTwfLtMHdapqJFcKZfM=
