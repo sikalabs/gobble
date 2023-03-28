@@ -2,15 +2,19 @@ meta:
   schema_version: 3
 global:
   no_strict_host_key_checking: true
+  vars:
+    prefix: '[gobble]'
+    msg: Global Gobble!
 hosts:
   all:
     - ssh_target: root@gobble-example.sikademo.com
       vars:
-        msg: Gobble Gobble!
+        ip: gobble-example.sikademo.com
+        msg: Host Gobble!
 plays:
   - name: Install Nginx
     hosts: [all]
-    sudo: true
+    sudo: false
     tags: [setup]
     tasks:
       - name: Install Nginx
@@ -18,10 +22,19 @@ plays:
           name: nginx
   - name: Index.html
     hosts: [all]
-    sudo: true
+    sudo: false
     tags: [content]
     tasks:
       - name: Create index.html
         template:
           path: /var/www/html/index.html
-          template: <h1>{{.Vars.msg}}</h1>{{ printf "\n" }}
+          template: <h1>{{- if .Vars.prefix -}}{{.Vars.prefix}} {{ end -}}{{.Vars.msg}}</h1>{{ printf "\n" }}
+  - name: See
+    hosts: [all]
+    sudo: false
+    tags: [content]
+    tasks:
+      - name: See
+        print:
+          template: |
+            See: http://{{.Vars.ip}}
