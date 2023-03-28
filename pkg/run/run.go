@@ -53,6 +53,7 @@ func Run(
 
 					fmt.Println(`+ play:`, play.Name)
 					fmt.Println(`  host:`, host.SSHTarget)
+					fmt.Println(`  sudo:`, play.Sudo)
 					fmt.Println(`  task:`, t.Name)
 					taskInput := libtask.TaskInput{
 						SSHTarget: host.SSHTarget,
