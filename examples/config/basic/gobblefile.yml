@@ -1,21 +1,27 @@
 meta:
-  schema_version: 2
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
 hosts:
   all:
     - ssh_target: root@gobble-example.sikademo.com
       vars:
         msg: Gobble Gobble!
 plays:
-  - name: Nginx Example
+  - name: Install Nginx
     hosts: [all]
+    sudo: true
+    tags: [setup]
     tasks:
       - name: Install Nginx
         apt_install:
           name: nginx
+  - name: Index.html
+    hosts: [all]
+    sudo: true
+    tags: [content]
+    tasks:
       - name: Create index.html
         template:
           path: /var/www/html/index.html
           template: <h1>{{.Vars.msg}}</h1>{{ printf "\n" }}
-      - name: Start Nginx
-        command:
-          cmd: systemctl start nginx
