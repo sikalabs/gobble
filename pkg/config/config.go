@@ -11,8 +11,13 @@ type ConfigHost struct {
 	Vars      map[string]interface{} `yaml:"vars"`
 }
 
+type GlobalConfig struct {
+	NoStrictHostKeyChecking bool `yaml:"no_strict_host_key_checking"`
+}
+
 type Config struct {
-	Meta  ConfigMeta              `yaml:"meta"`
-	Hosts map[string][]ConfigHost `yaml:"hosts"`
-	Plays []play.Play             `yaml:"plays"`
+	Meta   ConfigMeta              `yaml:"meta"`
+	Global GlobalConfig            `yaml:"global"`
+	Hosts  map[string][]ConfigHost `yaml:"hosts"`
+	Plays  []play.Play             `yaml:"plays"`
 }

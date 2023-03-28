@@ -46,15 +46,18 @@ func SSH(taskInput libtask.TaskInput, cmdArray ...string) error {
 	if taskInput.Sudo {
 		args = append([]string{taskInput.SSHTarget, "sudo"}, cmdArray...)
 	}
+	if taskInput.NoStrictHostKeyChecking {
+		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
+	}
 	return Exec(taskInput, "ssh", args...)
 }
 
 func rawSCP(taskInput libtask.TaskInput, localPath string, remotePath string) error {
-	return Exec(
-		taskInput,
-		"scp", localPath,
-		taskInput.SSHTarget+":"+remotePath,
-	)
+	args := []string{localPath, taskInput.SSHTarget + ":" + remotePath}
+	if taskInput.NoStrictHostKeyChecking {
+		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
+	}
+	return Exec(taskInput, "scp", args...)
 }
 
 func SCP(taskInput libtask.TaskInput, localSrc string, remoteDst string) error {

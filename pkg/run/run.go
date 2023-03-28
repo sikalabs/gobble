@@ -56,11 +56,12 @@ func Run(
 					fmt.Println(`  sudo:`, play.Sudo)
 					fmt.Println(`  task:`, t.Name)
 					taskInput := libtask.TaskInput{
-						SSHTarget: host.SSHTarget,
-						Config:    c,
-						Sudo:      play.Sudo,
-						Vars:      host.Vars,
-						Dry:       dryRun,
+						SSHTarget:               host.SSHTarget,
+						Config:                  c,
+						NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
+						Sudo:                    play.Sudo,
+						Vars:                    host.Vars,
+						Dry:                     dryRun,
 					}
 					out := task.Run(taskInput, t)
 					if out.Error != nil {
