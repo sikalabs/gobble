@@ -13,9 +13,10 @@ func Run(
 	taskInput libtask.TaskInput,
 	taskParams TaskCommand,
 ) libtask.TaskOutput {
-	err := exec_utils.Exec(
+	err := exec_utils.SSH(
 		taskInput,
-		"ssh", append([]string{taskInput.SSHTarget}, taskParams.Cmd)...)
+		taskParams.Cmd,
+	)
 	return libtask.TaskOutput{
 		Error: err,
 	}

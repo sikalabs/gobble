@@ -14,9 +14,8 @@ func Run(
 	taskInput libtask.TaskInput,
 	taskParams TaskChmod,
 ) libtask.TaskOutput {
-	err := exec_utils.Exec(
+	err := exec_utils.SSH(
 		taskInput,
-		"ssh", taskInput.SSHTarget,
 		"chmod", taskParams.Perm, taskParams.Path,
 	)
 	return libtask.TaskOutput{

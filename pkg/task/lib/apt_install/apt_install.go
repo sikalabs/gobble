@@ -21,9 +21,8 @@ func Run(
 		taskParams.State = "present"
 	}
 	if taskParams.State == "present" {
-		err = exec_utils.Exec(
+		err = exec_utils.SSH(
 			taskInput,
-			"ssh", taskInput.SSHTarget,
 			"apt-get", "install", "-y", "--no-install-recommends",
 			taskParams.Name,
 		)
@@ -31,9 +30,8 @@ func Run(
 			Error: err,
 		}
 	} else if taskParams.State == "absent" {
-		err = exec_utils.Exec(
+		err = exec_utils.SSH(
 			taskInput,
-			"ssh", taskInput.SSHTarget,
 			"apt-get", "purge", "-y",
 			taskParams.Name,
 		)

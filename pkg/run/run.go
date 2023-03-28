@@ -57,6 +57,7 @@ func Run(
 					taskInput := libtask.TaskInput{
 						SSHTarget: host.SSHTarget,
 						Config:    c,
+						Sudo:      play.Sudo,
 						Vars:      host.Vars,
 						Dry:       dryRun,
 					}
