@@ -32,7 +32,7 @@ func init() {
 		"config",
 		"c",
 		"gobblefile.yml",
-		"Path to config file",
+		"Path to config file, \"-\" for STDIN",
 	)
 	Cmd.Flags().BoolVar(
 		&FlagDryRun,

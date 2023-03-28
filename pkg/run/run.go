@@ -1,8 +1,10 @@
 package run
 
 import (
+	"bufio"
 	"fmt"
 	"io/ioutil"
+	"os"
 
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
@@ -78,12 +80,24 @@ func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
 }
 
 func readConfigFile(configFilePath string) (config.Config, error) {
+	var buf []byte
+	var err error
 	c := config.Config{}
 
-	buf, err := ioutil.ReadFile(configFilePath)
-	if err != nil {
-		return c, err
+	if configFilePath == "-" {
+		// Read from stdin
+		buf, err = ioutil.ReadAll(bufio.NewReader(os.Stdin))
+		if err != nil {
+			return c, err
+		}
+	} else {
+		// Read from file
+		buf, err = ioutil.ReadFile(configFilePath)
+		if err != nil {
+			return c, err
+		}
 	}
+
 	_ = yaml.Unmarshal(buf, &c)
 	if err != nil {
 		return c, err
