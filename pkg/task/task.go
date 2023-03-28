@@ -5,6 +5,7 @@ import (
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/apt_install"
+	"github.com/sikalabs/gobble/pkg/task/lib/authorized_key"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
 	"github.com/sikalabs/gobble/pkg/task/lib/cp"
@@ -13,13 +14,14 @@ import (
 )
 
 type Task struct {
-	Name       string                     `yaml:"name"`
-	AptInstall apt_install.TaskAptInstall `yaml:"apt_install"`
-	Cp         cp.TaskCp                  `yaml:"cp"`
-	Template   template.TaskTemplate      `yaml:"template"`
-	Command    command.TaskCommand        `yaml:"command"`
-	Chmod      chmod.TaskChmod            `yaml:"chmod"`
-	Print      print.TaskPrint            `yaml:"print"`
+	Name          string                           `yaml:"name"`
+	AptInstall    apt_install.TaskAptInstall       `yaml:"apt_install"`
+	Cp            cp.TaskCp                        `yaml:"cp"`
+	Template      template.TaskTemplate            `yaml:"template"`
+	Command       command.TaskCommand              `yaml:"command"`
+	Chmod         chmod.TaskChmod                  `yaml:"chmod"`
+	Print         print.TaskPrint                  `yaml:"print"`
+	AuthorizedKey authorized_key.TaskAuthorizedKey `yaml:"authorized_key"`
 }
 
 func Run(
@@ -39,6 +41,8 @@ func Run(
 		return chmod.Run(taskInput, task.Chmod)
 	case task.Print.Template != "":
 		return print.Run(taskInput, task.Print)
+	case task.AuthorizedKey.Key != "":
+		return authorized_key.Run(taskInput, task.AuthorizedKey)
 	}
 	return libtask.TaskOutput{
 		Error: fmt.Errorf("task \"%s\" not found", task.Name),
