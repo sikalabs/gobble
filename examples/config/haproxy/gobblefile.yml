@@ -1,5 +1,5 @@
 meta:
-  schema_version: 2
+  schema_version: 3
 hosts:
   proxy:
     - ssh_target: root@test1.sikademo.com
