@@ -8,8 +8,9 @@ import (
 )
 
 type TaskAptInstall struct {
-	Name  string `yaml:"name"`
-	State string `yaml:"state"`
+	Name   string `yaml:"name"`
+	State  string `yaml:"state"`
+	Update bool   `yaml:"update"`
 }
 
 func Run(
@@ -17,6 +18,17 @@ func Run(
 	taskParams TaskAptInstall,
 ) libtask.TaskOutput {
 	var err error
+	if taskParams.Update {
+		err = exec_utils.SSH(
+			taskInput,
+			"apt-get", "update",
+		)
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+	}
 	if taskParams.State == "" {
 		taskParams.State = "present"
 	}
