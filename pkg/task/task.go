@@ -31,7 +31,7 @@ func Run(
 	switch {
 	case task.AptInstall.Name != "":
 		return apt_install.Run(taskInput, task.AptInstall)
-	case task.Cp.LocalSrc != "":
+	case task.Cp.LocalSrc != "" || task.Cp.RemoteSrc != "":
 		return cp.Run(taskInput, task.Cp)
 	case task.Template.Path != "":
 		return template.Run(taskInput, task.Template)
