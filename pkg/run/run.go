@@ -28,6 +28,8 @@ func Run(
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
+	lenPlays := lenPlays(c, onlyTags)
+	playI := 0
 	for _, play := range c.Plays {
 		if len(onlyTags) > 0 {
 			skip := true
@@ -40,18 +42,22 @@ func Run(
 				continue
 			}
 		}
+		playI++
 
+		lenTasks := len(play.Tasks)
+		taskI := 0
 		for _, t := range play.Tasks {
+			taskI++
 			for globalHostName, globalHost := range c.Hosts {
 				for _, host := range globalHost {
 					if !slices.Contains(play.Hosts, globalHostName) {
 						continue
 					}
 
-					fmt.Println(`+ play:`, play.Name)
-					fmt.Println(`  host:`, host.SSHTarget)
-					fmt.Println(`  sudo:`, play.Sudo)
-					fmt.Println(`  task:`, t.Name)
+					fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
+					fmt.Printf("  host: %s\n", host.SSHTarget)
+					fmt.Printf("  sudo: %t\n", play.Sudo)
+					fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
 					taskInput := libtask.TaskInput{
 						SSHTarget:               host.SSHTarget,
 						Config:                  c,
@@ -106,4 +112,24 @@ func readConfigFile(configFilePath string) (config.Config, error) {
 	}
 
 	return c, nil
+}
+
+func lenPlays(c config.Config, onlyTags []string) int {
+	length := 0
+	for _, play := range c.Plays {
+		if len(onlyTags) > 0 {
+			skip := true
+			for _, tag := range onlyTags {
+				if slices.Contains(play.Tags, tag) {
+					skip = false
+				}
+			}
+			if skip {
+				continue
+			}
+		}
+		length++
+	}
+
+	return length
 }
