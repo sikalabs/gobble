@@ -1,0 +1,17 @@
+meta:
+  schema_version: 3
+hosts:
+  nodes:
+    - ssh_target: root@gobble-example-rke2-ma1.sikademo.com
+    - ssh_target: root@gobble-example-rke2-ma2.sikademo.com
+    - ssh_target: root@gobble-example-rke2-ma3.sikademo.com
+    - ssh_target: root@gobble-example-rke2-wo1.sikademo.com
+    - ssh_target: root@gobble-example-rke2-wo2.sikademo.com
+    - ssh_target: root@gobble-example-rke2-wo3.sikademo.com
+plays:
+  - name: Uninstall RKE2
+    hosts: [nodes]
+    tasks:
+      - name: Uninstall RKE2
+        command:
+          cmd: /usr/local/bin/rke2-uninstall.sh || true

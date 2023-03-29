@@ -1,0 +1,184 @@
+meta:
+  schema_version: 3
+global:
+  vars:
+    token: o94defesf8pezm560xghrjsgt7nii2hx
+    server: gobble-example-rke2-ma1.sikademo.com
+hosts:
+  proxy:
+    - ssh_target: root@gobble-example-rke2-proxy.sikademo.com
+  ma:
+    - ssh_target: root@gobble-example-rke2-ma1.sikademo.com
+      vars:
+        first_master: true
+    - ssh_target: root@gobble-example-rke2-ma2.sikademo.com
+    - ssh_target: root@gobble-example-rke2-ma3.sikademo.com
+  wo:
+    - ssh_target: root@gobble-example-rke2-wo1.sikademo.com
+      vars:
+        backend: gobble-example-rke2-wo1.sikademo.com
+    - ssh_target: root@gobble-example-rke2-wo2.sikademo.com
+      vars:
+        backend: gobble-example-rke2-wo2.sikademo.com
+    - ssh_target: root@gobble-example-rke2-wo3.sikademo.com
+      vars:
+        backend: gobble-example-rke2-wo3.sikademo.com
+plays:
+  - name: Install Requirements & Commons
+    hosts: [proxy, ma, wo]
+    tags: [install]
+    tasks:
+      - name: Install apt requirements
+        command:
+          cmd: apt update && apt install -y curl git open-iscsi nfs-common
+
+      - name: Install slu
+        command:
+          cmd: curl -fsSL https://raw.githubusercontent.com/sikalabs/slu/master/install.sh | sh
+
+      - name: Install kubectl (using slu)
+        command:
+          cmd: slu install-bin kubectl
+
+      - name: Install helm (using slu)
+        command:
+          cmd: slu install-bin helm
+
+  - name: Setup Master Nodes
+    hosts: [ma]
+    tags: [master]
+    tasks:
+      - name: Create /etc/rancher/rke2 dir
+        command:
+          cmd: mkdir -p /etc/rancher/rke2
+
+      - name: Create /etc/rancher/rke2/config.yaml
+        template:
+          path: /etc/rancher/rke2/config.yaml
+          template: |
+            {{ if not .Vars.first_master }}
+            server: https://{{.Vars.server}}:9345
+            {{ end }}
+            token: {{.Vars.token}}
+            node-taint:
+                - "CriticalAddonsOnly=true:NoExecute"
+            disable:
+              - rke2-ingress-nginx
+
+      - name: Install RKE2
+        command:
+          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' sh -
+
+      - name: Enable RKE2
+        command:
+          cmd: systemctl enable rke2-server.service
+
+      - name: Start RKE2
+        command:
+          cmd: systemctl start rke2-server.service
+
+      - name: Create ~/.kube dir
+        command:
+          cmd: mkdir -p /root/.kube
+
+      - name: Create ~/.kube/config
+        command:
+          cmd: rm -rf /root/.kube/config && ln -s /etc/rancher/rke2/rke2.yaml /root/.kube/config
+
+      - name: Try it!
+        print:
+          template: |
+            ssh root@gobble-example-rke2-simple-node.sikademo.com kubectl get nodes
+
+  - name: Setup Worker Nodes
+    hosts: [wo]
+    tags: [worker]
+    tasks:
+      - name: Create /etc/rancher/rke2 dir
+        command:
+          cmd: mkdir -p /etc/rancher/rke2
+
+      - name: Create /etc/rancher/rke2/config.yaml
+        template:
+          path: /etc/rancher/rke2/config.yaml
+          template: |
+            server: https://{{.Vars.server}}:9345
+            token: {{.Vars.token}}
+
+      - name: Install RKE2
+        command:
+          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' sh -
+
+      - name: Install RKE2
+        command:
+          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' INSTALL_RKE2_TYPE=agent sh -
+
+      - name: Enable RKE2
+        command:
+          cmd: systemctl enable rke2-agent.service
+
+      - name: Start RKE2
+        command:
+          cmd:  systemctl start rke2-agent.service
+
+  - name:  Proxy
+    hosts: [proxy]
+    tags: [proxy]
+    tasks:
+      - name: Install HAProxy
+        apt_install:
+          name: haproxy
+
+      - name: Config HAProxy
+        template:
+          path: /etc/haproxy/haproxy.cfg
+          template: |
+            defaults
+              mode tcp
+              timeout client 10s
+              timeout connect 5s
+              timeout server 10s
+              timeout http-request 10s
+
+            frontend http
+              bind 0.0.0.0:80
+              default_backend http
+
+            frontend https
+              bind 0.0.0.0:443
+              default_backend https
+
+            backend http
+              {{ range $i, $server := .Config.Hosts.wo }}
+              server backend-http-{{$i}} {{$server.Vars.backend}}:80
+              {{ end }}
+
+            backend https
+              {{ range $i, $server := .Config.Hosts.wo }}
+              server backend-https-{{$i}} {{$server.Vars.backend}}:443
+              {{ end }}
+
+      - name: Restart HAProxy
+        command:
+          cmd: service haproxy restart
+
+  - name: Setup Workload
+    hosts: [ma]
+    tags: [workload]
+    tasks:
+      - name: Install Cluster Essentials (ingress-nginx, cert-manager, cluster issuer)
+        command:
+          cmd: slu scripts kubernetes install-all --base-domain gobble-example-rke2-proxy.sikademo.com --no-argocd
+
+      - name: Install Hello World App
+        command:
+          cmd: slu scripts kubernetes install-hello-world --host gobble-example-rke2-proxy.sikademo.com --replicas 3
+
+      - name: Wait for valit TLS certificate
+        command:
+          cmd: slu wait-for tls -a gobble-example-rke2-proxy.sikademo.com:443
+
+      - name: Try it!
+        print:
+          template: |
+            See: https://gobble-example-rke2-proxy.sikademo.com
