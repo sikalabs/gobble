@@ -9,6 +9,7 @@ import (
 	"github.com/mohae/deepcopy"
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
+	"github.com/sikalabs/gobble/pkg/play"
 	"github.com/sikalabs/gobble/pkg/task"
 	"golang.org/x/exp/slices"
 	"gopkg.in/yaml.v2"
@@ -48,14 +49,17 @@ func Run(
 		taskI := 0
 		for _, t := range play.Tasks {
 			taskI++
+			lenHosts := lenHosts(c, play)
+			hostI := 0
 			for globalHostName, globalHost := range c.Hosts {
 				for _, host := range globalHost {
 					if !slices.Contains(play.Hosts, globalHostName) {
 						continue
 					}
+					hostI++
 
 					fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
-					fmt.Printf("  host: %s\n", host.SSHTarget)
+					fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
 					fmt.Printf("  sudo: %t\n", play.Sudo)
 					fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
 					taskInput := libtask.TaskInput{
@@ -131,5 +135,18 @@ func lenPlays(c config.Config, onlyTags []string) int {
 		length++
 	}
 
+	return length
+}
+
+func lenHosts(c config.Config, play play.Play) int {
+	length := 0
+	for globalHostName, globalHost := range c.Hosts {
+		for _, _ = range globalHost {
+			if !slices.Contains(play.Hosts, globalHostName) {
+				continue
+			}
+			length++
+		}
+	}
 	return length
 }
