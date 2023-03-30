@@ -11,8 +11,13 @@ hosts:
     - ssh_target: root@gobble-example-rke2-ma1.sikademo.com
       vars:
         first_master: true
+        fqdn: gobble-example-rke2-ma1.sikademo.com
     - ssh_target: root@gobble-example-rke2-ma2.sikademo.com
+      vars:
+        fqdn: gobble-example-rke2-ma2.sikademo.com
     - ssh_target: root@gobble-example-rke2-ma3.sikademo.com
+      vars:
+        fqdn: gobble-example-rke2-ma3.sikademo.com
   wo:
     - ssh_target: root@gobble-example-rke2-wo1.sikademo.com
       vars:
@@ -58,6 +63,10 @@ plays:
           template: |
             {{ if not .Vars.first_master }}
             server: https://{{.Vars.server}}:9345
+            {{ end }}
+            tls-san:
+            {{ range $i, $server := .Config.Hosts.ma }}
+            - {{$server.Vars.fqdn}}
             {{ end }}
             token: {{.Vars.token}}
             node-taint:
