@@ -107,10 +107,6 @@ plays:
 
       - name: Install RKE2
         command:
-          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' sh -
-
-      - name: Install RKE2
-        command:
           cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' INSTALL_RKE2_TYPE=agent sh -
 
       - name: Enable RKE2
