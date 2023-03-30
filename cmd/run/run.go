@@ -9,6 +9,7 @@ import (
 )
 
 var FlagDryRun bool
+var FlagQuietOutput bool
 var FlagOnlyTags []string
 var FlagConfigFilePath string
 
@@ -18,7 +19,7 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"gobble", "r"},
 	Args:    cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
-		err := run.Run(FlagConfigFilePath, FlagDryRun, FlagOnlyTags)
+		err := run.Run(FlagConfigFilePath, FlagDryRun, FlagQuietOutput, FlagOnlyTags)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -45,5 +46,12 @@ func init() {
 		"only-tag",
 		[]string{},
 		"Run only selected task by tags",
+	)
+	Cmd.Flags().BoolVarP(
+		&FlagQuietOutput,
+		"quiet",
+		"q",
+		false,
+		"Quiet output",
 	)
 }

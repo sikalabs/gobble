@@ -18,6 +18,7 @@ import (
 func Run(
 	configFilePath string,
 	dryRun bool,
+	quietOutput bool,
 	onlyTags []string,
 ) error {
 	c, err := readConfigFile(configFilePath)
@@ -58,10 +59,12 @@ func Run(
 					}
 					hostI++
 
-					fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
-					fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
-					fmt.Printf("  sudo: %t\n", play.Sudo)
-					fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
+					if !quietOutput {
+						fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
+						fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
+						fmt.Printf("  sudo: %t\n", play.Sudo)
+						fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
+					}
 					taskInput := libtask.TaskInput{
 						SSHTarget:               host.SSHTarget,
 						Config:                  c,
@@ -69,6 +72,7 @@ func Run(
 						Sudo:                    play.Sudo,
 						Vars:                    mergeMaps(c.Global.Vars, host.Vars),
 						Dry:                     dryRun,
+						Quiet:                   quietOutput,
 					}
 					out := task.Run(taskInput, t)
 					if out.Error != nil {

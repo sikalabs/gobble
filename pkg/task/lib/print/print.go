@@ -29,6 +29,7 @@ func Run(
 			Error: err,
 		}
 	}
+	defer os.Remove(tmpFile.Name())
 	err = tmpl.Execute(tmpFile, map[string]interface{}{
 		"Config": taskInput.Config,
 		"Vars":   taskInput.Vars,
@@ -38,6 +39,11 @@ func Run(
 			Error: err,
 		}
 	}
+
+	if taskInput.Quiet {
+		fmt.Println("cat <<EOF")
+	}
+
 	fmt.Println("OUTPUT:")
 	err = exec_utils.RawExecStdout("cat", tmpFile.Name())
 	if err != nil {
@@ -45,9 +51,12 @@ func Run(
 			Error: err,
 		}
 	}
-	defer os.Remove(tmpFile.Name())
+
+	if taskInput.Quiet {
+		fmt.Println("EOF")
+	}
 
 	return libtask.TaskOutput{
-		Error: err,
+		Error: nil,
 	}
 }
