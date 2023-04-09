@@ -29,7 +29,7 @@ plays:
 
       - name: Install RKE2
         command:
-          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' sh -
+          cmd: curl -sfL https://get.rke2.io | INSTALL_RKE2_METHOD='tar' INSTALL_RKE2_VERSION="v1.26.3+rke2r1" sh -
 
       - name: Enable RKE2
         command:
