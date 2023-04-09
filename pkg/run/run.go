@@ -61,9 +61,9 @@ func Run(
 
 					if !quietOutput {
 						fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
+						fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
 						fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
 						fmt.Printf("  sudo: %t\n", play.Sudo)
-						fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
 					}
 					taskInput := libtask.TaskInput{
 						SSHTarget:               host.SSHTarget,
