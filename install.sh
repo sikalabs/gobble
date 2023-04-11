@@ -10,4 +10,3 @@ rm ${BIN}_${VERSION}_${OS}_${ARCH}.tar.gz && \
 sudo mv ${BIN} /usr/local/bin/ && \
 sudo /usr/local/bin/install-slu install && \
 sudo /usr/local/bin/slu install-bin gobble
-sudo rm -f /usr/local/bin/install-slu
