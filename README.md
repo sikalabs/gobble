@@ -15,7 +15,7 @@ brew install sikalabs/tap/gobble
 Linux
 
 ```
-curl -fsSL https://raw.githubusercontent.com/sikalabs/gobble/master/install.sh | sudo sh
+curl -fsSL https://raw.githubusercontent.com/sikalabs/gobble/master/install.sh | sh
 ```
 
 Using [slu](https://github.com/sikalabs/slu)
