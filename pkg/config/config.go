@@ -16,11 +16,18 @@ type GlobalConfig struct {
 	Vars                    map[string]interface{} `yaml:"vars"`
 }
 
+type InludePlays struct {
+	Source string `yaml:"source"`
+}
+
 type Config struct {
 	Meta   ConfigMeta              `yaml:"meta"`
 	Global GlobalConfig            `yaml:"global"`
 	Hosts  map[string][]ConfigHost `yaml:"hosts"`
 	Plays  []play.Play             `yaml:"plays"`
+
+	IncludePlaysBefore []InludePlays `yaml:"include_plays_before"`
+	IncludePlaysAfter  []InludePlays `yaml:"include_plays_after"`
 
 	AllPlays []play.Play
 }

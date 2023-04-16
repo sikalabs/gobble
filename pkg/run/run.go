@@ -4,7 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
+	"strings"
 
 	"github.com/mohae/deepcopy"
 	"github.com/sikalabs/gobble/pkg/config"
@@ -31,7 +34,27 @@ func Run(
 	}
 
 	c.AllPlays = []play.Play{}
+
+	// Add Includes Before
+	for _, includePlays := range c.IncludePlaysBefore {
+		plays, err := getPlaysFromIncludePlays(includePlays)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		c.AllPlays = append(c.AllPlays, plays...)
+	}
+
+	// Add Plays from Gobblefile
 	c.AllPlays = append(c.AllPlays, c.Plays...)
+
+	// Add Includes After
+	for _, includePlays := range c.IncludePlaysAfter {
+		plays, err := getPlaysFromIncludePlays(includePlays)
+		if err != nil {
+			log.Fatalln(err)
+		}
+		c.AllPlays = append(c.AllPlays, plays...)
+	}
 
 	lenPlays := lenPlays(c, onlyTags)
 	playI := 0
@@ -159,4 +182,70 @@ func lenHosts(c config.Config, play play.Play) int {
 		}
 	}
 	return length
+}
+
+func getPlaysFromIncludePlays(includePlays config.InludePlays) ([]play.Play, error) {
+	plays := []play.Play{}
+	if strings.HasPrefix(includePlays.Source, "http://") ||
+		strings.HasPrefix(includePlays.Source, "https://") {
+		// Get from URL
+		playsFromOneURL, err := getPlaysFromURL(includePlays.Source)
+		if err != nil {
+			return nil, err
+		}
+		plays = append(plays, playsFromOneURL...)
+	} else {
+		// Get from file
+		playsFromOneFile, err := getPlaysFromFile(includePlays.Source)
+		if err != nil {
+			return nil, err
+		}
+		plays = append(plays, playsFromOneFile...)
+	}
+	return plays, nil
+}
+
+func getPlaysFromFile(filePath string) ([]play.Play, error) {
+	var err error
+	var buf []byte
+	plays := []play.Play{}
+
+	// Read from file
+	buf, err = ioutil.ReadFile(filePath)
+	if err != nil {
+		return plays, err
+	}
+
+	_ = yaml.Unmarshal(buf, &plays)
+	if err != nil {
+		return plays, err
+	}
+
+	return plays, nil
+}
+
+func getPlaysFromURL(url string) ([]play.Play, error) {
+	var err error
+	var buf []byte
+	plays := []play.Play{}
+
+	res, err := http.Get(url)
+	if err != nil {
+		fmt.Println("Error while sending request:", err)
+		return nil, err
+	}
+	defer res.Body.Close()
+
+	// Read from HTTP response
+	buf, err = ioutil.ReadAll(res.Body)
+	if err != nil {
+		return plays, err
+	}
+
+	_ = yaml.Unmarshal(buf, &plays)
+	if err != nil {
+		return plays, err
+	}
+
+	return plays, nil
 }
