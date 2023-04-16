@@ -21,4 +21,6 @@ type Config struct {
 	Global GlobalConfig            `yaml:"global"`
 	Hosts  map[string][]ConfigHost `yaml:"hosts"`
 	Plays  []play.Play             `yaml:"plays"`
+
+	AllPlays []play.Play
 }

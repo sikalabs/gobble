@@ -30,9 +30,12 @@ func Run(
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
+	c.AllPlays = []play.Play{}
+	c.AllPlays = append(c.AllPlays, c.Plays...)
+
 	lenPlays := lenPlays(c, onlyTags)
 	playI := 0
-	for _, play := range c.Plays {
+	for _, play := range c.AllPlays {
 		if len(onlyTags) > 0 {
 			skip := true
 			for _, tag := range onlyTags {
@@ -127,7 +130,7 @@ func readConfigFile(configFilePath string) (config.Config, error) {
 
 func lenPlays(c config.Config, onlyTags []string) int {
 	length := 0
-	for _, play := range c.Plays {
+	for _, play := range c.AllPlays {
 		if len(onlyTags) > 0 {
 			skip := true
 			for _, tag := range onlyTags {
