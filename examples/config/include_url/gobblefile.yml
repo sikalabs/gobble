@@ -1,0 +1,16 @@
+meta:
+  schema_version: 3
+hosts:
+  localhost:
+    - ssh_target: 127.0.0.1
+include_plays_before:
+  - source: https://raw.githubusercontent.com/sikalabs/gobble/master/examples/config/include_url/plays.before.yml
+include_plays_after:
+  - source: https://raw.githubusercontent.com/sikalabs/gobble/master/examples/config/include_url/plays.after.yml
+plays:
+  - name:  This Gobblefile URL
+    hosts: [localhost]
+    tasks:
+      - name: This Gobblefile URL
+        print:
+          template: This Gobble URL
