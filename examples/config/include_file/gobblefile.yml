@@ -1,0 +1,16 @@
+meta:
+  schema_version: 3
+hosts:
+  localhost:
+    - ssh_target: 127.0.0.1
+include_plays_before:
+  - source: plays.before.yml
+include_plays_after:
+  - source: plays.after.yml
+plays:
+  - name:  This Gobblefile
+    hosts: [localhost]
+    tasks:
+      - name: This Gobblefile
+        print:
+          template: This Gobble

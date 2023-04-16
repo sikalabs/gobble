@@ -1,0 +1,6 @@
+- name:  Plays After
+  hosts: [localhost]
+  tasks:
+    - name: Plays After
+      print:
+        template: Plays After
