@@ -1,0 +1,6 @@
+- name:  Plays After URL
+  hosts: [localhost]
+  tasks:
+    - name: Plays After URL
+      print:
+        template: Plays After URL
