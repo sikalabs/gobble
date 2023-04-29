@@ -2,7 +2,7 @@ meta:
   schema_version: 3
 hosts:
   node:
-    - ssh_target: root@gobble-example-rke2-simple-node.sikademo.com
+    - ssh_target: root@gobble-example-rke2-single-node.sikademo.com
 plays:
   - name: Setup Cluster
     hosts: [node]
