@@ -18,7 +18,7 @@ import (
 	"gopkg.in/yaml.v2"
 )
 
-func Run(
+func RunFromFile(
 	configFilePath string,
 	dryRun bool,
 	quietOutput bool,

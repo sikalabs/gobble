@@ -19,7 +19,7 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"gobble", "r"},
 	Args:    cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
-		err := run.Run(FlagConfigFilePath, FlagDryRun, FlagQuietOutput, FlagOnlyTags)
+		err := run.RunFromFile(FlagConfigFilePath, FlagDryRun, FlagQuietOutput, FlagOnlyTags)
 		if err != nil {
 			log.Fatalln(err)
 		}
