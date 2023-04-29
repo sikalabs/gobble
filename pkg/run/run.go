@@ -29,6 +29,15 @@ func RunFromFile(
 		return err
 	}
 
+	return Run(c, dryRun, quietOutput, onlyTags)
+}
+
+func Run(
+	c config.Config,
+	dryRun bool,
+	quietOutput bool,
+	onlyTags []string,
+) error {
 	if c.Meta.SchemaVersion != 3 {
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
