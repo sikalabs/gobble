@@ -1,0 +1,17 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+  vars:
+    msg: Gobble Hello Gobble World!
+hosts:
+  all:
+    - ssh_target: localhost
+plays:
+  - name: Hello World
+    hosts: [all]
+    tasks:
+      - name: See
+        print:
+          template: |
+            {{.Vars.msg}}
