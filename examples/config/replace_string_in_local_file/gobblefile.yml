@@ -1,0 +1,26 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+  vars:
+    find1: Hello
+    replace1: Gobble
+    find2: World
+    replace2: Gobble...
+hosts:
+  all:
+    - ssh_target: localhost
+plays:
+  - name: Replace in local file
+    hosts: [all]
+    tasks:
+      - name: Replace 1
+        replace_string_in_local_file:
+          path: hello.txt
+          find: "{{.Vars.find1}}"
+          replace: "{{.Vars.replace1}}"
+      - name: Replace 2
+        replace_string_in_local_file:
+          path: hello.txt
+          find: "{{.Vars.find2}}"
+          replace: "{{.Vars.replace2}}"
