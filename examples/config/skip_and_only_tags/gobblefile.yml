@@ -1,0 +1,29 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+hosts:
+  all:
+    - ssh_target: localhost
+plays:
+  - name: Build
+    hosts: [all]
+    tags: [build]
+    tasks:
+      - name: Build
+        print:
+          template: Build ...
+  - name: Deploy
+    hosts: [all]
+    tags: [deploy]
+    tasks:
+      - name: Deploy
+        print:
+          template: Deploy ...
+  - name: Test
+    hosts: [all]
+    tags: [test]
+    tasks:
+      - name: Test
+        print:
+          template: Test ...
