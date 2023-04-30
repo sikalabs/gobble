@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
+	"github.com/sikalabs/gobble/pkg/utils/template_utils"
 )
 
 type TaskReplaceStringInLocalFile struct {
@@ -17,7 +18,36 @@ func Run(
 	taskInput libtask.TaskInput,
 	taskParams TaskReplaceStringInLocalFile,
 ) libtask.TaskOutput {
-	err := replaceStringInFile(taskParams.Path, taskParams.Find, taskParams.Replace)
+	vars := map[string]interface{}{
+		"Config": taskInput.Config,
+		"Vars":   taskInput.Vars,
+	}
+
+	// Render find string
+	find, err := template_utils.RenderTemplateToString(
+		taskParams.Find, "TaskReplaceStringInLocalFile.Find", vars,
+	)
+	if err != nil {
+		return libtask.TaskOutput{
+			Error: err,
+		}
+	}
+
+	// Render replace string
+	replace, err := template_utils.RenderTemplateToString(
+		taskParams.Replace, "TaskReplaceStringInLocalFile.Replace", vars,
+	)
+	if err != nil {
+		return libtask.TaskOutput{
+			Error: err,
+		}
+	}
+
+	err = replaceStringInFile(
+		taskParams.Path,
+		find,
+		replace,
+	)
 	return libtask.TaskOutput{
 		Error: err,
 	}
