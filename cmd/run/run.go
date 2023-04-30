@@ -11,6 +11,7 @@ import (
 var FlagDryRun bool
 var FlagQuietOutput bool
 var FlagOnlyTags []string
+var FlagSkipTags []string
 var FlagConfigFilePath string
 
 var Cmd = &cobra.Command{
@@ -19,7 +20,7 @@ var Cmd = &cobra.Command{
 	Aliases: []string{"gobble", "r"},
 	Args:    cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
-		err := run.RunFromFile(FlagConfigFilePath, FlagDryRun, FlagQuietOutput, FlagOnlyTags)
+		err := run.RunFromFile(FlagConfigFilePath, FlagDryRun, FlagQuietOutput, FlagOnlyTags, FlagSkipTags)
 		if err != nil {
 			log.Fatalln(err)
 		}
@@ -46,6 +47,12 @@ func init() {
 		"only-tag",
 		[]string{},
 		"Run only selected task by tags",
+	)
+	Cmd.Flags().StringSliceVar(
+		&FlagSkipTags,
+		"skip-tag",
+		[]string{},
+		"Skip only selected plays by tags",
 	)
 	Cmd.Flags().BoolVarP(
 		&FlagQuietOutput,

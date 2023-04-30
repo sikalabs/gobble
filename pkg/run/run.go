@@ -23,13 +23,14 @@ func RunFromFile(
 	dryRun bool,
 	quietOutput bool,
 	onlyTags []string,
+	skipTags []string,
 ) error {
 	c, err := readConfigFile(configFilePath)
 	if err != nil {
 		return err
 	}
 
-	return Run(c, dryRun, quietOutput, onlyTags)
+	return Run(c, dryRun, quietOutput, onlyTags, skipTags)
 }
 
 func Run(
@@ -37,6 +38,7 @@ func Run(
 	dryRun bool,
 	quietOutput bool,
 	onlyTags []string,
+	skipTags []string,
 ) error {
 	if c.Meta.SchemaVersion != 3 {
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
@@ -65,19 +67,28 @@ func Run(
 		c.AllPlays = append(c.AllPlays, plays...)
 	}
 
-	lenPlays := lenPlays(c, onlyTags)
+	lenPlays := lenPlays(c, onlyTags, skipTags)
 	playI := 0
 	for _, play := range c.AllPlays {
+		skip := false
+		for _, tag := range skipTags {
+			if slices.Contains(play.Tags, tag) {
+				skip = true
+			}
+		}
+		if skip {
+			continue
+		}
 		if len(onlyTags) > 0 {
-			skip := true
+			skip = true
 			for _, tag := range onlyTags {
 				if slices.Contains(play.Tags, tag) {
 					skip = false
 				}
 			}
-			if skip {
-				continue
-			}
+		}
+		if skip {
+			continue
 		}
 		playI++
 
@@ -162,19 +173,28 @@ func readConfigFile(configFilePath string) (config.Config, error) {
 	return c, nil
 }
 
-func lenPlays(c config.Config, onlyTags []string) int {
+func lenPlays(c config.Config, onlyTags []string, skipTags []string) int {
 	length := 0
 	for _, play := range c.AllPlays {
+		skip := false
+		for _, tag := range skipTags {
+			if slices.Contains(play.Tags, tag) {
+				skip = true
+			}
+		}
+		if skip {
+			continue
+		}
 		if len(onlyTags) > 0 {
-			skip := true
+			skip = true
 			for _, tag := range onlyTags {
 				if slices.Contains(play.Tags, tag) {
 					skip = false
 				}
 			}
-			if skip {
-				continue
-			}
+		}
+		if skip {
+			continue
 		}
 		length++
 	}
