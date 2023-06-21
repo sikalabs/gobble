@@ -58,7 +58,7 @@ plays:
       - name: Try it!
         print:
           template: |
-            ssh root@gobble-example-rke2-simple-node.sikademo.com kubectl get nodes
+            ssh root@gobble-example-rke2-single-node.sikademo.com kubectl get nodes
 
   - name: Setup Workload
     hosts: [node]
@@ -66,20 +66,20 @@ plays:
     tasks:
       - name: Install Cluster Essentials (ingress-nginx, cert-manager, cluster issuer)
         command:
-          cmd: slu scripts kubernetes install-all --base-domain gobble-example-rke2-simple-node.sikademo.com --no-argocd
+          cmd: slu scripts kubernetes install-all --base-domain gobble-example-rke2-single-node.sikademo.com --no-argocd
 
       - name: Install Hello World App
         command:
-          cmd: slu scripts kubernetes install-hello-world --host gobble-example-rke2-simple-node.sikademo.com --replicas 3
+          cmd: slu scripts kubernetes install-hello-world --host gobble-example-rke2-single-node.sikademo.com --replicas 3
 
       - name: Wait for valit TLS certificate
         command:
-          cmd: slu wait-for tls -a gobble-example-rke2-simple-node.sikademo.com:443
+          cmd: slu wait-for tls -a gobble-example-rke2-single-node.sikademo.com:443
 
       - name: Try it!
         print:
           template: |
-            See: https://gobble-example-rke2-simple-node.sikademo.com
+            See: https://gobble-example-rke2-single-node.sikademo.com
 
   - name: Get Kubeconfig
     hosts: [node]
@@ -93,7 +93,7 @@ plays:
         replace_string_in_local_file:
           path: ./kubeconfig.yml
           find: 127.0.0.1
-          replace: gobble-example-rke2-simple-node.sikademo.com
+          replace: gobble-example-rke2-single-node.sikademo.com
       - name: Replace default with joh
         replace_string_in_local_file:
           path: ./kubeconfig.yml
