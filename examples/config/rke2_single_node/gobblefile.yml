@@ -60,6 +60,25 @@ plays:
           template: |
             ssh root@gobble-example-rke2-single-node.sikademo.com kubectl get nodes
 
+  - name: Get Kubeconfig
+    hosts: [node]
+    tags: [get-kubeconfig]
+    tasks:
+      - name: Copy ~/.kube/config
+        cp:
+          remote_src: /root/.kube/config
+          local_dst: ./kubeconfig.yml
+      - name: Replace 127.0.0.1 with public endpoint
+        replace_string_in_local_file:
+          path: ./kubeconfig.yml
+          find: 127.0.0.1
+          replace: gobble-example-rke2-single-node.sikademo.com
+      - name: Replace default with joh
+        replace_string_in_local_file:
+          path: ./kubeconfig.yml
+          find: default
+          replace: gobble-rke2-single-node
+
   - name: Setup Workload
     hosts: [node]
     tags: [workload]
@@ -80,22 +99,3 @@ plays:
         print:
           template: |
             See: https://gobble-example-rke2-single-node.sikademo.com
-
-  - name: Get Kubeconfig
-    hosts: [node]
-    tags: [get-kubeconfig]
-    tasks:
-      - name: Copy ~/.kube/config
-        cp:
-          remote_src: /root/.kube/config
-          local_dst: ./kubeconfig.yml
-      - name: Replace 127.0.0.1 with public endpoint
-        replace_string_in_local_file:
-          path: ./kubeconfig.yml
-          find: 127.0.0.1
-          replace: gobble-example-rke2-single-node.sikademo.com
-      - name: Replace default with joh
-        replace_string_in_local_file:
-          path: ./kubeconfig.yml
-          find: default
-          replace: gobble-rke2-single-node
