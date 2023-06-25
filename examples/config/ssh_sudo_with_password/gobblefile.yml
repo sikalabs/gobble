@@ -1,0 +1,17 @@
+meta:
+  schema_version: 3
+hosts:
+  all:
+    - ssh_target: ssh://root@127.0.0.1:2223
+      ssh_password: root
+      sudo_password: root
+plays:
+  - name: Test
+    hosts: [all]
+    tasks:
+      - name: date
+        command:
+          cmd: sh -c "date >> /now"
+      - name: id
+        command:
+          cmd: sh -c "id >> /now"
