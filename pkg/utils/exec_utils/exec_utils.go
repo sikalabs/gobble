@@ -38,6 +38,9 @@ func Exec(taskInput libtask.TaskInput, cmd string, args ...string) error {
 				dryArgs = append(dryArgs, arg)
 			}
 		}
+		if taskInput.SudoPassword != "" {
+			fmt.Printf("echo %s | ", taskInput.SudoPassword)
+		}
 		fmt.Println(strings.Join(append([]string{cmd}, dryArgs...), " "))
 		return nil
 	}
