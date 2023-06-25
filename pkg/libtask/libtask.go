@@ -3,6 +3,7 @@ package libtask
 type TaskInput struct {
 	SSHTarget               string
 	SSHPassword             string
+	SSHOptions              []string
 	NoStrictHostKeyChecking bool
 	Sudo                    bool
 	SudoPassword            string

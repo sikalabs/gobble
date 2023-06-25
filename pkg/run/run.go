@@ -116,6 +116,7 @@ func Run(
 					taskInput := libtask.TaskInput{
 						SSHTarget:               host.SSHTarget,
 						SSHPassword:             host.SSHPassword,
+						SSHOptions:              host.SSHOptions,
 						SudoPassword:            host.SudoPassword,
 						Config:                  c,
 						NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,

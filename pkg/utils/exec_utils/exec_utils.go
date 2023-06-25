@@ -59,6 +59,9 @@ func SSH(taskInput libtask.TaskInput, cmdArray ...string) error {
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
+	for _, option := range taskInput.SSHOptions {
+		args = append([]string{"-o", option}, args...)
+	}
 	if taskInput.SSHPassword != "" {
 		return Exec(taskInput, "sshpass", append([]string{"-p", taskInput.SSHPassword, "ssh"}, args...)...)
 	} else {

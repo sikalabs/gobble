@@ -9,6 +9,7 @@ type ConfigMeta struct {
 type ConfigHost struct {
 	SSHTarget    string                 `yaml:"ssh_target"`
 	SSHPassword  string                 `yaml:"ssh_password"`
+	SSHOptions   []string               `yaml:"ssh_options"`
 	SudoPassword string                 `yaml:"sudo_password"`
 	Vars         map[string]interface{} `yaml:"vars"`
 }
