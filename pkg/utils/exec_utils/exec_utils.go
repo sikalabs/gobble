@@ -1,6 +1,7 @@
 package exec_utils
 
 import (
+	"bytes"
 	"fmt"
 	"os"
 	"os/exec"
@@ -10,8 +11,11 @@ import (
 	"github.com/sikalabs/gobble/pkg/utils/random_utils"
 )
 
-func RawExec(cmd string, args ...string) error {
+func RawExec(password string, cmd string, args ...string) error {
 	c := exec.Command(cmd, args...)
+	if password != "" {
+		c.Stdin = bytes.NewBufferString(password + "\n")
+	}
 	err := c.Run()
 	return err
 }
@@ -37,7 +41,8 @@ func Exec(taskInput libtask.TaskInput, cmd string, args ...string) error {
 		fmt.Println(strings.Join(append([]string{cmd}, dryArgs...), " "))
 		return nil
 	}
-	err := RawExec(cmd, args...)
+
+	err := RawExec(taskInput.SudoPassword, cmd, args...)
 	return err
 }
 
@@ -45,11 +50,17 @@ func SSH(taskInput libtask.TaskInput, cmdArray ...string) error {
 	args := append([]string{taskInput.SSHTarget}, cmdArray...)
 	if taskInput.Sudo {
 		args = append([]string{taskInput.SSHTarget, "sudo"}, cmdArray...)
+	} else if taskInput.SudoPassword != "" {
+		args = append([]string{taskInput.SSHTarget, "sudo", "-S"}, cmdArray...)
 	}
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
-	return Exec(taskInput, "ssh", args...)
+	if taskInput.SSHPassword != "" {
+		return Exec(taskInput, "sshpass", append([]string{"-p", taskInput.SSHPassword, "ssh"}, args...)...)
+	} else {
+		return Exec(taskInput, "ssh", args...)
+	}
 }
 
 func rawSCP(taskInput libtask.TaskInput, localPath string, remotePath string) error {
