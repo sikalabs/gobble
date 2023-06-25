@@ -1,0 +1,32 @@
+meta:
+  schema_version: 3
+hosts:
+  ssh_with_password_sudo_with_password:
+    - ssh_target: ssh://demo@127.0.0.1:2223
+      ssh_password: demo
+      sudo_password: demo
+  ssh_without_password_sudo_with_password:
+    - ssh_target: ssh://demo@127.0.0.1:2224
+      ssh_options:
+        - IdentityFile=./ssh_without_password_sudo_with_password/id_rsa
+      sudo_password: demo
+plays:
+  - name: Test ssh_with_password_sudo_with_password
+    hosts: [ssh_with_password_sudo_with_password]
+    tasks:
+      - name: date
+        command:
+          cmd: sh -c "date >> /now"
+      - name: id
+        command:
+          cmd: sh -c "id >> /now"
+
+  - name: Test ssh_without_password_sudo_with_password
+    hosts: [ssh_without_password_sudo_with_password]
+    tasks:
+      - name: date
+        command:
+          cmd: sh -c "date >> /now"
+      - name: id
+        command:
+          cmd: sh -c "id >> /now"

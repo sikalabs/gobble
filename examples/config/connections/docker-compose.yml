@@ -1,0 +1,12 @@
+version: "3.8"
+services:
+  ssh_with_password_sudo_with_password:
+    build: ssh_with_password_sudo_with_password
+    platform: linux/amd64
+    ports:
+      - 2223:22
+  ssh_without_password_sudo_with_password:
+    build: ssh_without_password_sudo_with_password
+    platform: linux/amd64
+    ports:
+      - 2224:22
