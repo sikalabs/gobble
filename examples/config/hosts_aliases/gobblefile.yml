@@ -1,0 +1,41 @@
+meta:
+  schema_version: 3
+hosts:
+  host1:
+    - ssh_target: 127.0.0.1
+      vars:
+        host: 127.0.0.1
+  host2:
+    - ssh_target: localhost
+      vars:
+        host: localhost
+hosts_aliases:
+  all:
+    - host1
+    - host2
+  h1: [host1]
+  h2: [host2]
+plays:
+  - name:  Test all alias
+    hosts: [all]
+    tasks:
+      - name: Test all alias
+        print:
+          template: |
+            Test {{.Vars.host}}
+
+  - name:  Test h1 alias
+    hosts: [h1]
+    tasks:
+      - name: Test h1 alias
+        print:
+          template: |
+            Test {{.Vars.host}}
+
+  - name:  Test h2 alias
+    hosts: [h2]
+    tasks:
+      - name: Test h2 alias
+        print:
+          template: |
+            Test {{.Vars.host}}
