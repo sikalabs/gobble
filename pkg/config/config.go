@@ -24,13 +24,15 @@ type InludePlays struct {
 }
 
 type Config struct {
-	Meta   ConfigMeta              `yaml:"meta"`
-	Global GlobalConfig            `yaml:"global"`
-	Hosts  map[string][]ConfigHost `yaml:"hosts"`
-	Plays  []play.Play             `yaml:"plays"`
+	Meta         ConfigMeta              `yaml:"meta"`
+	Global       GlobalConfig            `yaml:"global"`
+	Hosts        map[string][]ConfigHost `yaml:"hosts"`
+	HostsAliases map[string][]string     `yaml:"hosts_aliases"`
+	Plays        []play.Play             `yaml:"plays"`
 
 	IncludePlaysBefore []InludePlays `yaml:"include_plays_before"`
 	IncludePlaysAfter  []InludePlays `yaml:"include_plays_after"`
 
+	AllHosts map[string][]ConfigHost
 	AllPlays []play.Play
 }

@@ -44,6 +44,14 @@ func Run(
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
+	c.AllHosts = c.Hosts
+
+	for hostAliasName, hostAliases := range c.HostsAliases {
+		for _, hostAlias := range hostAliases {
+			c.AllHosts[hostAliasName] = append(c.AllHosts[hostAliasName], c.Hosts[hostAlias]...)
+		}
+	}
+
 	c.AllPlays = []play.Play{}
 
 	// Add Includes Before
@@ -98,7 +106,7 @@ func Run(
 			taskI++
 			lenHosts := lenHosts(c, play)
 			hostI := 0
-			for globalHostName, globalHost := range c.Hosts {
+			for globalHostName, globalHost := range c.AllHosts {
 				for _, host := range globalHost {
 					if !slices.Contains(play.Hosts, globalHostName) {
 						continue
@@ -207,7 +215,7 @@ func lenPlays(c config.Config, onlyTags []string, skipTags []string) int {
 
 func lenHosts(c config.Config, play play.Play) int {
 	length := 0
-	for globalHostName, globalHost := range c.Hosts {
+	for globalHostName, globalHost := range c.AllHosts {
 		for _, _ = range globalHost {
 			if !slices.Contains(play.Hosts, globalHostName) {
 				continue
