@@ -9,6 +9,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
 	"github.com/sikalabs/gobble/pkg/task/lib/cp"
+	"github.com/sikalabs/gobble/pkg/task/lib/echo"
 	"github.com/sikalabs/gobble/pkg/task/lib/print"
 	rsilf "github.com/sikalabs/gobble/pkg/task/lib/replace_string_in_local_file"
 	"github.com/sikalabs/gobble/pkg/task/lib/template"
@@ -16,6 +17,7 @@ import (
 
 type Task struct {
 	Name                         string                             `yaml:"name"`
+	Echo                         echo.TaskEcho                      `yaml:"echo"`
 	AptInstall                   apt_install.TaskAptInstall         `yaml:"apt_install"`
 	Cp                           cp.TaskCp                          `yaml:"cp"`
 	Template                     template.TaskTemplate              `yaml:"template"`
@@ -33,6 +35,8 @@ func Run(
 	switch {
 	case task.AptInstall.Name != "":
 		return apt_install.Run(taskInput, task.AptInstall)
+	case task.Echo.Message != "":
+		return echo.Run(taskInput, task.Echo)
 	case task.Cp.LocalSrc != "" || task.Cp.RemoteSrc != "":
 		return cp.Run(taskInput, task.Cp)
 	case task.Template.Path != "":
