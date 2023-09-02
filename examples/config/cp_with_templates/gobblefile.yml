@@ -1,0 +1,20 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+hosts:
+  all:
+    - ssh_target: root@gobble-test.sikademo.com
+      vars:
+        filename: hello
+    - ssh_target: root@gobble-test.sikademo.com
+      vars:
+        filename: world
+plays:
+  - name: Copy file to server
+    hosts: [all]
+    tasks:
+      - name: Replace 1
+        cp:
+          local_src: hello.txt
+          remote_dst: /tmp/{{.Vars.filename}}.txt
