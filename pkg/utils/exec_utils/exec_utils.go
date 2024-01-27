@@ -74,7 +74,11 @@ func rawSCP(taskInput libtask.TaskInput, localPath string, remotePath string) er
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
-	return Exec(taskInput, "scp", args...)
+	if taskInput.SSHPassword != "" {
+		return Exec(taskInput, "sshpass", append([]string{"-p", taskInput.SSHPassword, "scp"}, args...)...)
+	} else {
+		return Exec(taskInput, "scp", args...)
+	}
 }
 
 func rawSCPRemoteToLocal(taskInput libtask.TaskInput, remotePath string, localPath string) error {
@@ -82,7 +86,11 @@ func rawSCPRemoteToLocal(taskInput libtask.TaskInput, remotePath string, localPa
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
-	return Exec(taskInput, "scp", args...)
+	if taskInput.SSHPassword != "" {
+		return Exec(taskInput, "sshpass", append([]string{"-p", taskInput.SSHPassword, "scp"}, args...)...)
+	} else {
+		return Exec(taskInput, "scp", args...)
+	}
 }
 
 func SCP(taskInput libtask.TaskInput, localSrc string, remoteDst string) error {
