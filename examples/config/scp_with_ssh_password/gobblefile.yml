@@ -1,0 +1,24 @@
+meta:
+  schema_version: 3
+hosts:
+  all:
+    - ssh_target: demo@127.0.0.1
+      ssh_port: 2222
+      ssh_password: demo
+      sudo_password: demo
+      vars:
+        hello: Ahoj
+        world: Svete
+plays:
+  - name: Test
+    hosts: [all]
+    tasks:
+      - name: cp
+        cp:
+          local_src: hello.txt
+          remote_dst: /hello.txt
+      - name: template
+        template:
+          path: /template.txt
+          template: |
+            {{ .Vars.hello }} {{ .Vars.world }}
