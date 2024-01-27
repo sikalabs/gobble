@@ -2,9 +2,9 @@ meta:
   schema_version: 3
 hosts:
   all:
-    - ssh_target: ssh://root@127.0.0.1:2223
-      ssh_password: root
-      sudo_password: root
+    - ssh_target: ssh://demo@127.0.0.1:2222
+      ssh_password: demo
+      sudo_password: demo
 plays:
   - name: Test
     hosts: [all]

@@ -4,6 +4,6 @@ RUN \
   apt-get install -y --no-install-recommends \
     sudo && \
   rm -rf /var/lib/apt/lists
-RUN useradd demo -s /bin/bash
+RUN useradd demo -s /bin/bash -m
 RUN echo "demo:demo" | chpasswd
 RUN echo "demo ALL=(ALL) ALL" >> /etc/sudoers
