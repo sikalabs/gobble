@@ -116,13 +116,18 @@ func Run(
 					if !quietOutput {
 						fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
 						fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
-						fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
+						if host.SSHPort == 0 {
+							fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
+						} else {
+							fmt.Printf("  host: %s (port %d) (%d/%d)\n", host.SSHTarget, host.SSHPort, hostI, lenHosts)
+						}
 						if play.Sudo {
 							fmt.Printf("  sudo: %t\n", play.Sudo)
 						}
 					}
 					taskInput := libtask.TaskInput{
 						SSHTarget:               host.SSHTarget,
+						SSHPort:                 host.SSHPort,
 						SSHPassword:             host.SSHPassword,
 						SSHOptions:              host.SSHOptions,
 						SudoPassword:            host.SudoPassword,

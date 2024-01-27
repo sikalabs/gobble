@@ -59,6 +59,9 @@ func SSH(taskInput libtask.TaskInput, cmdArray ...string) error {
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
+	if taskInput.SSHPort != 0 {
+		args = append([]string{"-p", fmt.Sprintf("%d", taskInput.SSHPort)}, args...)
+	}
 	for _, option := range taskInput.SSHOptions {
 		args = append([]string{"-o", option}, args...)
 	}
@@ -74,6 +77,9 @@ func rawSCP(taskInput libtask.TaskInput, localPath string, remotePath string) er
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
+	if taskInput.SSHPort != 0 {
+		args = append([]string{"-P", fmt.Sprintf("%d", taskInput.SSHPort)}, args...)
+	}
 	if taskInput.SSHPassword != "" {
 		return Exec(taskInput, "sshpass", append([]string{"-p", taskInput.SSHPassword, "scp"}, args...)...)
 	} else {
@@ -85,6 +91,9 @@ func rawSCPRemoteToLocal(taskInput libtask.TaskInput, remotePath string, localPa
 	args := []string{taskInput.SSHTarget + ":" + remotePath, localPath}
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
+	}
+	if taskInput.SSHPort != 0 {
+		args = append([]string{"-P", fmt.Sprintf("%d", taskInput.SSHPort)}, args...)
 	}
 	if taskInput.SSHPassword != "" {
 		return Exec(taskInput, "sshpass", append([]string{"-p", taskInput.SSHPassword, "scp"}, args...)...)

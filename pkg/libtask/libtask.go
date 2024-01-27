@@ -2,6 +2,7 @@ package libtask
 
 type TaskInput struct {
 	SSHTarget               string
+	SSHPort                 int
 	SSHPassword             string
 	SSHOptions              []string
 	NoStrictHostKeyChecking bool

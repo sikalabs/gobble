@@ -8,6 +8,7 @@ type ConfigMeta struct {
 
 type ConfigHost struct {
 	SSHTarget    string                 `yaml:"ssh_target"`
+	SSHPort      int                    `yaml:"ssh_port"`
 	SSHPassword  string                 `yaml:"ssh_password"`
 	SSHOptions   []string               `yaml:"ssh_options"`
 	SudoPassword string                 `yaml:"sudo_password"`
