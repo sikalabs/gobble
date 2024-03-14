@@ -12,12 +12,16 @@ import (
 )
 
 func RawExec(password string, cmd string, args ...string) error {
+	var stderrBuf bytes.Buffer
+
 	c := exec.Command(cmd, args...)
 	if password != "" {
 		c.Stdin = bytes.NewBufferString(password + "\n")
 	}
+	c.Stderr = &stderrBuf
 	err := c.Run()
-	return err
+
+	return fmt.Errorf("command failed: %v \nerror: %s", err, stderrBuf.String())
 }
 
 func RawExecStdout(cmd string, args ...string) error {
