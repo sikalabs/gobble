@@ -1,0 +1,22 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+  vars:
+    prefix: '[gobble]'
+    msg: Global Gobble!
+hosts:
+  all:
+    - ssh_target: localhost
+      vars:
+        ip: localhost
+        msg: Host Gobble!
+plays:
+  - name: Fail on purpose
+    hosts: [all]
+    sudo: false
+    tags: [setup]
+    tasks:
+      - name: Fail on purpose
+        command:
+          cmd: echo "Simulated error message" >&2 && exit 1
