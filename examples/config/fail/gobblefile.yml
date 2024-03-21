@@ -19,4 +19,4 @@ plays:
     tasks:
       - name: Fail on purpose
         command:
-          cmd: echo "Simulated error message" >&2 && exit 1
+          cmd: echo "Simulated stdout message" >&1 && echo "Simulated stderr message" >&2  && exit 1
