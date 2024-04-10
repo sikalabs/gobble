@@ -3,7 +3,7 @@ package ping
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"os"
 
@@ -98,13 +98,13 @@ func readConfigFile(configFilePath string) (config.Config, error) {
 
 	if configFilePath == "-" {
 		// Read from stdin
-		buf, err = ioutil.ReadAll(bufio.NewReader(os.Stdin))
+		buf, err = io.ReadAll(bufio.NewReader(os.Stdin))
 		if err != nil {
 			return c, err
 		}
 	} else {
 		// Read from file
-		buf, err = ioutil.ReadFile(configFilePath)
+		buf, err = os.ReadFile(configFilePath)
 		if err != nil {
 			return c, err
 		}

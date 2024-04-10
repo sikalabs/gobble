@@ -2,8 +2,8 @@ package yaml_utils
 
 import (
 	"fmt"
-	"io/ioutil"
 	"log"
+	"os"
 
 	"gopkg.in/yaml.v2"
 )
@@ -14,7 +14,7 @@ func MergeYAMLs(paths []string) {
 	data := []byte{}
 
 	for _, path := range paths {
-		file, err := ioutil.ReadFile(string(path))
+		file, err := os.ReadFile(string(path))
 		if err != nil {
 			log.Fatalf("Failed to read %s: %v", string(path), err)
 		}

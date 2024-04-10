@@ -3,7 +3,7 @@ package run
 import (
 	"bufio"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"os"
@@ -169,13 +169,13 @@ func readConfigFile(configFilePath string) (config.Config, error) {
 
 	if configFilePath == "-" {
 		// Read from stdin
-		buf, err = ioutil.ReadAll(bufio.NewReader(os.Stdin))
+		buf, err = io.ReadAll(bufio.NewReader(os.Stdin))
 		if err != nil {
 			return c, err
 		}
 	} else {
 		// Read from file
-		buf, err = ioutil.ReadFile(configFilePath)
+		buf, err = os.ReadFile(configFilePath)
 		if err != nil {
 			return c, err
 		}
@@ -258,7 +258,7 @@ func getPlaysFromFile(filePath string) ([]play.Play, error) {
 	plays := []play.Play{}
 
 	// Read from file
-	buf, err = ioutil.ReadFile(filePath)
+	buf, err = os.ReadFile(filePath)
 	if err != nil {
 		return plays, err
 	}
@@ -284,7 +284,7 @@ func getPlaysFromURL(url string) ([]play.Play, error) {
 	defer res.Body.Close()
 
 	// Read from HTTP response
-	buf, err = ioutil.ReadAll(res.Body)
+	buf, err = io.ReadAll(res.Body)
 	if err != nil {
 		return plays, err
 	}

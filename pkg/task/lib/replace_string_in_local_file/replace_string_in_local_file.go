@@ -2,6 +2,7 @@ package replace_string_in_local_file
 
 import (
 	"io/ioutil"
+	"os"
 	"strings"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
@@ -55,7 +56,7 @@ func Run(
 
 func replaceStringInFile(filename, searchStr, replaceStr string) error {
 	// read the entire file into memory
-	content, err := ioutil.ReadFile(filename)
+	content, err := os.ReadFile(filename)
 	if err != nil {
 		return err
 	}
