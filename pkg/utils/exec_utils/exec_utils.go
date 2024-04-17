@@ -81,6 +81,14 @@ func SSH(taskInput libtask.TaskInput, cmdArray ...string) error {
 
 func rawSCP(taskInput libtask.TaskInput, localPath string, remotePath string) error {
 	args := []string{localPath, taskInput.SSHTarget + ":" + remotePath}
+	// Check if the source is a directory
+	fileInfo, err := os.Stat(localPath)
+	if err != nil {
+		return fmt.Errorf("error accessing local path: %w", err)
+	}
+	if fileInfo.IsDir() {
+		args = append([]string{"-r"}, args...)
+	}
 	if taskInput.NoStrictHostKeyChecking {
 		args = append([]string{"-o", "StrictHostKeyChecking=no"}, args...)
 	}
