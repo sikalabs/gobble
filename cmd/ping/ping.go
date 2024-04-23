@@ -2,9 +2,8 @@ package ping
 
 import (
 	"bufio"
-	"fmt"
+	"github.com/sikalabs/gobble/pkg/logger"
 	"io"
-	"log"
 	"os"
 
 	"github.com/mohae/deepcopy"
@@ -26,11 +25,11 @@ var Cmd = &cobra.Command{
 		shellReturnCode := 0
 		conf, err := readConfigFile(FlagConfigFilePath)
 		if err != nil {
-			log.Fatalln(err)
+			logger.Log.Fatal(err)
 		}
 
 		if conf.Meta.SchemaVersion != 3 {
-			log.Fatalln(fmt.Errorf("unsupported schema version: %d", conf.Meta.SchemaVersion))
+			logger.Log.Fatalf("unsupported schema version: %d", conf.Meta.SchemaVersion)
 		}
 
 		conf.AllHosts = conf.Hosts
@@ -66,13 +65,13 @@ var Cmd = &cobra.Command{
 				Message: "ping",
 			}
 
-			fmt.Printf("Ping %s using SSH ...", host.SSHTarget)
+			logger.Log.Printf("Ping host %s using SSH ...", host.SSHTarget)
 			out := echo.Run(ti, taskParams)
 			isOK := out.Error == nil
 			if isOK {
-				fmt.Printf(" OK\n")
+				logger.Log.Printf("Host: %s OK", host.SSHTarget)
 			} else {
-				fmt.Printf(" ERR\n")
+				logger.Log.Errorf("Host: %s Not reachable", host.SSHTarget)
 				shellReturnCode = 1
 			}
 		}

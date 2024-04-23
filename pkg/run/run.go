@@ -3,8 +3,8 @@ package run
 import (
 	"bufio"
 	"fmt"
+	"github.com/sikalabs/gobble/pkg/logger"
 	"io"
-	"log"
 	"net/http"
 	"os"
 	"strings"
@@ -58,7 +58,7 @@ func Run(
 	for _, includePlays := range c.IncludePlaysBefore {
 		plays, err := getPlaysFromIncludePlays(includePlays)
 		if err != nil {
-			log.Fatalln(err)
+			logger.Log.Fatal(err)
 		}
 		c.AllPlays = append(c.AllPlays, plays...)
 	}
@@ -70,7 +70,7 @@ func Run(
 	for _, includePlays := range c.IncludePlaysAfter {
 		plays, err := getPlaysFromIncludePlays(includePlays)
 		if err != nil {
-			log.Fatalln(err)
+			logger.Log.Fatal(err)
 		}
 		c.AllPlays = append(c.AllPlays, plays...)
 	}
