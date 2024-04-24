@@ -44,11 +44,27 @@ func Run(
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
-	c.AllHosts = c.Hosts
+	if c.Hosts != nil {
+		c.AllHosts = c.Hosts
 
-	for hostAliasName, hostAliases := range c.HostsAliases {
-		for _, hostAlias := range hostAliases {
-			c.AllHosts[hostAliasName] = append(c.AllHosts[hostAliasName], c.Hosts[hostAlias]...)
+		for hostAliasName, hostAliases := range c.HostsAliases {
+			for _, hostAlias := range hostAliases {
+				c.AllHosts[hostAliasName] = append(c.AllHosts[hostAliasName], c.Hosts[hostAlias]...)
+			}
+		}
+
+	}
+
+	initializedHosts := Targets{}
+	targets := Targets{}
+	err := error(nil)
+
+	//Initialize host connections
+	if c.RigHosts != nil {
+		initializedHosts, err = initializeHosts(c.RigHosts)
+		targets = mapHostsToAlias(initializedHosts, c.HostsAliases)
+		if err != nil {
+			logger.Log.Fatal(err)
 		}
 	}
 
@@ -106,6 +122,23 @@ func Run(
 			taskI++
 			lenHosts := lenHosts(c, play)
 			hostI := 0
+
+			if targets != nil {
+				taskTargets := matchHostsToTask(play.Hosts, targets)
+				taskInput := libtask.TaskInput{
+					Config:                  c,
+					NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
+					Sudo:                    play.Sudo,
+					Vars:                    c.Global.Vars,
+					Dry:                     dryRun,
+					Quiet:                   quietOutput,
+				}
+				out := dispatchTask(t, taskInput, taskTargets)
+				if out.Error != nil {
+					return out.Error
+				}
+				return nil
+			}
 			for globalHostName, globalHost := range c.AllHosts {
 				for _, host := range globalHost {
 					if !slices.Contains(play.Hosts, globalHostName) {
@@ -145,6 +178,7 @@ func Run(
 					fmt.Println(``)
 				}
 			}
+
 		}
 	}
 
