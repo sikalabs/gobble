@@ -1,8 +1,9 @@
 package ping
 
 import (
+	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/logger"
-	"github.com/sikalabs/gobble/pkg/utils"
+	"github.com/sikalabs/gobble/pkg/run"
 	"os"
 
 	"github.com/sikalabs/gobble/cmd/root"
@@ -13,6 +14,8 @@ import (
 )
 
 var FlagConfigFilePath string
+
+// TODO Reimplement ping as a task
 
 var Cmd = &cobra.Command{
 	Use:   "ping",
@@ -25,52 +28,39 @@ var Cmd = &cobra.Command{
 			logger.Log.Fatal(err)
 		}
 
-		if conf.Meta.SchemaVersion != 3 {
+		if conf.Meta.SchemaVersion != 4 {
 			logger.Log.Fatalf("unsupported schema version: %d", conf.Meta.SchemaVersion)
 		}
 
-		conf.AllHosts = conf.Hosts
-
-		for hostAliasName, hostAliases := range conf.HostsAliases {
-			for _, hostAlias := range hostAliases {
-				conf.AllHosts[hostAliasName] = append(conf.AllHosts[hostAliasName], conf.Hosts[hostAlias]...)
-			}
+		//Initialize host connections
+		targets, err := host.InitializeHosts(conf.RigHosts, conf.HostsAliases)
+		if err != nil {
+			logger.Log.Fatal(err)
 		}
 
-		allHosts := map[string]config.ConfigHost{}
-
-		for _, hosts := range conf.AllHosts {
-			for _, host := range hosts {
-				allHosts[host.SSHTarget] = host
-			}
+		task := echo.Task{
+			BaseTask: libtask.BaseTask{
+				Name: "ping all hosts",
+			},
+			Message: "ping",
+		}
+		ti := libtask.TaskInput{
+			Config:                  conf,
+			NoStrictHostKeyChecking: conf.Global.NoStrictHostKeyChecking,
+			Sudo:                    false,
+			Vars:                    conf.Global.Vars,
+			Dry:                     false,
+			Quiet:                   false,
 		}
 
-		for _, host := range allHosts {
-			ti := libtask.TaskInput{
-				SSHTarget:               host.SSHTarget,
-				SSHPassword:             host.SSHPassword,
-				SSHOptions:              host.SSHOptions,
-				SudoPassword:            host.SudoPassword,
-				Config:                  conf,
-				NoStrictHostKeyChecking: conf.Global.NoStrictHostKeyChecking,
-				Sudo:                    false,
-				Vars:                    utils.MergeMaps(conf.Global.Vars, host.Vars),
-				Dry:                     false,
-				Quiet:                   false,
-			}
-			taskParams := echo.TaskEcho{
-				Message: "ping",
-			}
-
-			logger.Log.Printf("Ping host %s using SSH ...", host.SSHTarget)
-			out := echo.Run(ti, taskParams)
-			isOK := out.Error == nil
-			if isOK {
-				logger.Log.Printf("Host: %s OK", host.SSHTarget)
-			} else {
-				logger.Log.Errorf("Host: %s Not reachable", host.SSHTarget)
-				shellReturnCode = 1
-			}
+		logger.Log.Printf("Pinging hosts using SSH ...")
+		out := run.DispatchTask(&task, ti, targets)
+		isOK := out.Error == nil
+		if isOK {
+			logger.Log.Printf("Hosts are OK")
+		} else {
+			logger.Log.Errorf("Hosts are not reachable")
+			shellReturnCode = 1
 		}
 		os.Exit(shellReturnCode)
 	},

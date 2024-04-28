@@ -9,7 +9,7 @@ import (
 	"golang.org/x/exp/slices"
 )
 
-func dispatchTask(task task.Task, input libtask.TaskInput, targets host.Targets) libtask.TaskOutput {
+func DispatchTask(task task.Task, input libtask.TaskInput, targets host.Targets) libtask.TaskOutput {
 	lenTargets := config.LenTargets(targets)
 	var out libtask.TaskOutput
 	for _, hosts := range targets {

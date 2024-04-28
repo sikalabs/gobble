@@ -112,11 +112,12 @@ func Run(
 				Dry:                     dryRun,
 				Quiet:                   quietOutput,
 			}
-			out := dispatchTask(t, taskInput, taskTargets)
+			out := DispatchTask(t, taskInput, taskTargets)
 			if out.Error != nil {
 				return out.Error
 			}
 			fmt.Println(``)
+
 			return nil
 		}
 	}
