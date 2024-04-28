@@ -1,0 +1,31 @@
+meta:
+  schema_version: 3
+global:
+  no_strict_host_key_checking: true
+  vars:
+    prefix: '[gobble]'
+    msg: Global Gobble!
+rig_hosts:
+  remote_ssh:
+    - ssh:
+        address: 192.168.0.103
+        user: mkaplan
+        keyPath: ~/.ssh/id_ed25519
+    - local_openssh:
+        address: localhost
+        user: mkaplan
+        keyPath: ~/.ssh/id_ed25519
+hosts_aliases:
+  all:
+    - remote_ssh
+    - local_openssh
+
+plays:
+  - name: touch file
+    hosts: [all]
+    sudo: false
+    tags: [setup]
+    tasks:
+      - name: touch file
+        command:
+          cmd: touch /tmp/gobble-on-rig

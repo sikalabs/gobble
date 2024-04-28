@@ -1,8 +1,10 @@
-package config
+package host
 
 import (
+	"github.com/k0sproject/rig/v2"
 	"github.com/k0sproject/rig/v2/protocol/openssh"
 	"github.com/k0sproject/rig/v2/protocol/ssh"
+	"github.com/k0sproject/rig/v2/remotefs"
 )
 
 type HostConfig struct {
@@ -10,4 +12,10 @@ type HostConfig struct {
 	Opensh *openssh.Config        `yaml:"openssh,omitempty"`
 	Local  bool                   `yaml:"local,omitempty"`
 	Vars   map[string]interface{} `yaml:"vars"`
+}
+
+type Host struct {
+	Client *rig.Client
+	fs     remotefs.FS
+	Vars   map[string]interface{}
 }

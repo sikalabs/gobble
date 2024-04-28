@@ -1,18 +1,15 @@
 package ping
 
 import (
-	"bufio"
 	"github.com/sikalabs/gobble/pkg/logger"
-	"io"
+	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 
-	"github.com/mohae/deepcopy"
 	"github.com/sikalabs/gobble/cmd/root"
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/echo"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 var FlagConfigFilePath string
@@ -23,7 +20,7 @@ var Cmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
 		shellReturnCode := 0
-		conf, err := readConfigFile(FlagConfigFilePath)
+		conf, err := config.ReadConfigFile(FlagConfigFilePath)
 		if err != nil {
 			logger.Log.Fatal(err)
 		}
@@ -57,7 +54,7 @@ var Cmd = &cobra.Command{
 				Config:                  conf,
 				NoStrictHostKeyChecking: conf.Global.NoStrictHostKeyChecking,
 				Sudo:                    false,
-				Vars:                    mergeMaps(conf.Global.Vars, host.Vars),
+				Vars:                    utils.MergeMaps(conf.Global.Vars, host.Vars),
 				Dry:                     false,
 				Quiet:                   false,
 			}
@@ -88,42 +85,4 @@ func init() {
 		"gobblefile.yml",
 		"Path to config file, \"-\" for STDIN",
 	)
-}
-
-func readConfigFile(configFilePath string) (config.Config, error) {
-	var buf []byte
-	var err error
-	c := config.Config{}
-
-	if configFilePath == "-" {
-		// Read from stdin
-		buf, err = io.ReadAll(bufio.NewReader(os.Stdin))
-		if err != nil {
-			return c, err
-		}
-	} else {
-		// Read from file
-		buf, err = os.ReadFile(configFilePath)
-		if err != nil {
-			return c, err
-		}
-	}
-
-	_ = yaml.Unmarshal(buf, &c)
-	if err != nil {
-		return c, err
-	}
-
-	return c, nil
-}
-
-func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
-	if m1 == nil {
-		m1 = make(map[string]interface{})
-	}
-	deepCopyM1 := deepcopy.Copy(m1).(map[string]interface{})
-	for k, v := range m2 {
-		deepCopyM1[k] = v
-	}
-	return deepCopyM1
 }

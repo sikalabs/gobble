@@ -8,9 +8,6 @@ global:
 hosts:
   all:
     - ssh_target: localhost
-      vars:
-        ip: localhost
-        msg: Host Gobble!
 plays:
   - name: Fail on purpose
     hosts: [all]

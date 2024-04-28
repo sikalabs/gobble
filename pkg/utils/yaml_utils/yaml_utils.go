@@ -5,7 +5,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/logger"
 	"os"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 )
 
 func MergeYAMLs(paths []string) {

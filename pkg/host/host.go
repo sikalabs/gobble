@@ -1,4 +1,4 @@
-package run
+package host
 
 import (
 	"context"
@@ -9,19 +9,13 @@ import (
 	"github.com/k0sproject/rig/v2/protocol/openssh"
 	"github.com/k0sproject/rig/v2/protocol/ssh"
 	"github.com/k0sproject/rig/v2/remotefs"
-	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/logger"
 )
-
-type Host struct {
-	Client *rig.Client
-	fs     remotefs.FS
-}
 
 type Targets map[string][]*Host
 
 // InitializeHosts initializes hosts from config
-func initializeHosts(rigHosts map[string][]config.HostConfig) (map[string][]*Host, error) {
+func InitializeHosts(rigHosts map[string][]*HostConfig, hostAliases map[string][]string) (map[string][]*Host, error) {
 	initializedHosts := make(map[string][]*Host)
 	for globalHostName, globalHost := range rigHosts {
 		for _, host := range globalHost {
@@ -32,12 +26,13 @@ func initializeHosts(rigHosts map[string][]config.HostConfig) (map[string][]*Hos
 			initializedHosts[globalHostName] = append(initializedHosts[globalHostName], ihost)
 		}
 	}
-
-	return initializedHosts, nil
+	// Map hosts to aliases
+	targets := mapHostsToAlias(initializedHosts, hostAliases)
+	return targets, nil
 }
 
 // setupHost configures and connects to a single host
-func setupHost(hostConfig config.HostConfig) (*Host, error) {
+func setupHost(hostConfig *HostConfig) (*Host, error) {
 
 	conn, err := createConnection(hostConfig)
 	if err != nil {
@@ -52,11 +47,12 @@ func setupHost(hostConfig config.HostConfig) (*Host, error) {
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
-	return &Host{Client: client}, nil
+
+	return &Host{Client: client, Vars: hostConfig.Vars, fs: remotefs.NewFS(client)}, nil
 }
 
 // createConnection creates a connection to a host
-func createConnection(hostConfig config.HostConfig) (protocol.Connection, error) {
+func createConnection(hostConfig *HostConfig) (protocol.Connection, error) {
 
 	if hostConfig.Local {
 

@@ -1,0 +1,25 @@
+linters-settings:
+  revive:
+    confidence: 0.5
+  gocyclo:
+    min-complexity: 15
+
+#https://golangci-lint.run/usage/linters/
+linters:
+  disable-all: true
+  enable:
+    - govet       # Vet examines Go source code and reports suspicious constructs
+    - errcheck    # Errcheck checks for unchecked errors
+    - staticcheck # Staticcheck is a state of the art linter
+    - unused      # Checks Go code for unused constants, variables, functions and types
+    - gofmt       # Gofmt checks whether code was gofmt-ed
+    - goimports   # Goimports does everything that gofmt does. Additionally it checks unused imports
+    - revive      # Golint is a linter for Go source code
+    - ineffassign # Detects when assignments to existing variables are not used
+    - misspell    # Finds commonly misspelled English words in comments
+    - unconvert   # Remove unnecessary type conversions
+
+run:
+  timeout: 5m
+  modules-download-mode: readonly
+

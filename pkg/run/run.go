@@ -1,21 +1,13 @@
 package run
 
 import (
-	"bufio"
 	"fmt"
-	"github.com/sikalabs/gobble/pkg/logger"
-	"io"
-	"net/http"
-	"os"
-	"strings"
-
-	"github.com/mohae/deepcopy"
 	"github.com/sikalabs/gobble/pkg/config"
+	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
+	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/play"
-	"github.com/sikalabs/gobble/pkg/task"
 	"golang.org/x/exp/slices"
-	"gopkg.in/yaml.v2"
 )
 
 func RunFromFile(
@@ -25,7 +17,7 @@ func RunFromFile(
 	onlyTags []string,
 	skipTags []string,
 ) error {
-	c, err := readConfigFile(configFilePath)
+	c, err := config.ReadConfigFile(configFilePath)
 	if err != nil {
 		return err
 	}
@@ -34,45 +26,27 @@ func RunFromFile(
 }
 
 func Run(
-	c config.Config,
+	c *config.Config,
 	dryRun bool,
 	quietOutput bool,
 	onlyTags []string,
 	skipTags []string,
 ) error {
-	if c.Meta.SchemaVersion != 3 {
+	if c.Meta.SchemaVersion != 4 {
 		return fmt.Errorf("unsupported schema version: %d", c.Meta.SchemaVersion)
 	}
 
-	if c.Hosts != nil {
-		c.AllHosts = c.Hosts
-
-		for hostAliasName, hostAliases := range c.HostsAliases {
-			for _, hostAlias := range hostAliases {
-				c.AllHosts[hostAliasName] = append(c.AllHosts[hostAliasName], c.Hosts[hostAlias]...)
-			}
-		}
-
-	}
-
-	initializedHosts := Targets{}
-	targets := Targets{}
-	err := error(nil)
-
 	//Initialize host connections
-	if c.RigHosts != nil {
-		initializedHosts, err = initializeHosts(c.RigHosts)
-		targets = mapHostsToAlias(initializedHosts, c.HostsAliases)
-		if err != nil {
-			logger.Log.Fatal(err)
-		}
+	targets, err := host.InitializeHosts(c.RigHosts, c.HostsAliases)
+	if err != nil {
+		logger.Log.Fatal(err)
 	}
 
 	c.AllPlays = []play.Play{}
 
 	// Add Includes Before
 	for _, includePlays := range c.IncludePlaysBefore {
-		plays, err := getPlaysFromIncludePlays(includePlays)
+		plays, err := play.GetPlaysFromIncludePlays(includePlays)
 		if err != nil {
 			logger.Log.Fatal(err)
 		}
@@ -84,14 +58,14 @@ func Run(
 
 	// Add Includes After
 	for _, includePlays := range c.IncludePlaysAfter {
-		plays, err := getPlaysFromIncludePlays(includePlays)
+		plays, err := play.GetPlaysFromIncludePlays(includePlays)
 		if err != nil {
 			logger.Log.Fatal(err)
 		}
 		c.AllPlays = append(c.AllPlays, plays...)
 	}
 
-	lenPlays := lenPlays(c, onlyTags, skipTags)
+	lenPlays := config.LenPlays(c, onlyTags, skipTags)
 	playI := 0
 	for _, play := range c.AllPlays {
 		skip := false
@@ -120,213 +94,31 @@ func Run(
 		taskI := 0
 		for _, t := range play.Tasks {
 			taskI++
-			lenHosts := lenHosts(c, play)
-			hostI := 0
 
-			if targets != nil {
-				taskTargets := matchHostsToTask(play.Hosts, targets)
-				taskInput := libtask.TaskInput{
-					Config:                  c,
-					NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
-					Sudo:                    play.Sudo,
-					Vars:                    c.Global.Vars,
-					Dry:                     dryRun,
-					Quiet:                   quietOutput,
-				}
-				out := dispatchTask(t, taskInput, taskTargets)
-				if out.Error != nil {
-					return out.Error
-				}
-				return nil
-			}
-			for globalHostName, globalHost := range c.AllHosts {
-				for _, host := range globalHost {
-					if !slices.Contains(play.Hosts, globalHostName) {
-						continue
-					}
-					hostI++
-
-					if !quietOutput {
-						fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
-						fmt.Printf("  task: %s (%d/%d)\n", t.Name, taskI, lenTasks)
-						if host.SSHPort == 0 {
-							fmt.Printf("  host: %s (%d/%d)\n", host.SSHTarget, hostI, lenHosts)
-						} else {
-							fmt.Printf("  host: %s (port %d) (%d/%d)\n", host.SSHTarget, host.SSHPort, hostI, lenHosts)
-						}
-						if play.Sudo {
-							fmt.Printf("  sudo: %t\n", play.Sudo)
-						}
-					}
-					taskInput := libtask.TaskInput{
-						SSHTarget:               host.SSHTarget,
-						SSHPort:                 host.SSHPort,
-						SSHPassword:             host.SSHPassword,
-						SSHOptions:              host.SSHOptions,
-						SudoPassword:            host.SudoPassword,
-						Config:                  c,
-						NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
-						Sudo:                    play.Sudo,
-						Vars:                    mergeMaps(c.Global.Vars, host.Vars),
-						Dry:                     dryRun,
-						Quiet:                   quietOutput,
-					}
-					out := task.Run(taskInput, t)
-					if out.Error != nil {
-						return out.Error
-					}
-					fmt.Println(``)
+			if !quietOutput {
+				fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
+				fmt.Printf("  task: %s (%d/%d)\n", t.GetName(), taskI, lenTasks)
+				if play.Sudo {
+					fmt.Printf("  sudo: %t\n", play.Sudo)
 				}
 			}
 
+			taskTargets := matchHostsToTask(play.Hosts, targets)
+			taskInput := libtask.TaskInput{
+				Config:                  c,
+				NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
+				Sudo:                    play.Sudo,
+				Vars:                    c.Global.Vars,
+				Dry:                     dryRun,
+				Quiet:                   quietOutput,
+			}
+			out := dispatchTask(t, taskInput, taskTargets)
+			if out.Error != nil {
+				return out.Error
+			}
+			fmt.Println(``)
+			return nil
 		}
 	}
-
 	return nil
-}
-
-func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
-	if m1 == nil {
-		m1 = make(map[string]interface{})
-	}
-	deepCopyM1 := deepcopy.Copy(m1).(map[string]interface{})
-	for k, v := range m2 {
-		deepCopyM1[k] = v
-	}
-	return deepCopyM1
-}
-
-func readConfigFile(configFilePath string) (config.Config, error) {
-	var buf []byte
-	var err error
-	c := config.Config{}
-
-	if configFilePath == "-" {
-		// Read from stdin
-		buf, err = io.ReadAll(bufio.NewReader(os.Stdin))
-		if err != nil {
-			return c, err
-		}
-	} else {
-		// Read from file
-		buf, err = os.ReadFile(configFilePath)
-		if err != nil {
-			return c, err
-		}
-	}
-
-	_ = yaml.Unmarshal(buf, &c)
-	if err != nil {
-		return c, err
-	}
-
-	return c, nil
-}
-
-func lenPlays(c config.Config, onlyTags []string, skipTags []string) int {
-	length := 0
-	for _, play := range c.AllPlays {
-		skip := false
-		for _, tag := range skipTags {
-			if slices.Contains(play.Tags, tag) {
-				skip = true
-			}
-		}
-		if skip {
-			continue
-		}
-		if len(onlyTags) > 0 {
-			skip = true
-			for _, tag := range onlyTags {
-				if slices.Contains(play.Tags, tag) {
-					skip = false
-				}
-			}
-		}
-		if skip {
-			continue
-		}
-		length++
-	}
-
-	return length
-}
-
-func lenHosts(c config.Config, play play.Play) int {
-	length := 0
-	for globalHostName, globalHost := range c.AllHosts {
-		for _, _ = range globalHost {
-			if !slices.Contains(play.Hosts, globalHostName) {
-				continue
-			}
-			length++
-		}
-	}
-	return length
-}
-
-func getPlaysFromIncludePlays(includePlays config.InludePlays) ([]play.Play, error) {
-	plays := []play.Play{}
-	if strings.HasPrefix(includePlays.Source, "http://") ||
-		strings.HasPrefix(includePlays.Source, "https://") {
-		// Get from URL
-		playsFromOneURL, err := getPlaysFromURL(includePlays.Source)
-		if err != nil {
-			return nil, err
-		}
-		plays = append(plays, playsFromOneURL...)
-	} else {
-		// Get from file
-		playsFromOneFile, err := getPlaysFromFile(includePlays.Source)
-		if err != nil {
-			return nil, err
-		}
-		plays = append(plays, playsFromOneFile...)
-	}
-	return plays, nil
-}
-
-func getPlaysFromFile(filePath string) ([]play.Play, error) {
-	var err error
-	var buf []byte
-	plays := []play.Play{}
-
-	// Read from file
-	buf, err = os.ReadFile(filePath)
-	if err != nil {
-		return plays, err
-	}
-
-	_ = yaml.Unmarshal(buf, &plays)
-	if err != nil {
-		return plays, err
-	}
-
-	return plays, nil
-}
-
-func getPlaysFromURL(url string) ([]play.Play, error) {
-	var err error
-	var buf []byte
-	plays := []play.Play{}
-
-	res, err := http.Get(url)
-	if err != nil {
-		fmt.Println("Error while sending request:", err)
-		return nil, err
-	}
-	defer res.Body.Close()
-
-	// Read from HTTP response
-	buf, err = io.ReadAll(res.Body)
-	if err != nil {
-		return plays, err
-	}
-
-	_ = yaml.Unmarshal(buf, &plays)
-	if err != nil {
-		return plays, err
-	}
-
-	return plays, nil
 }

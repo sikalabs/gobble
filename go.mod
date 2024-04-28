@@ -6,11 +6,12 @@ toolchain go1.22.2
 
 require (
 	github.com/charmbracelet/log v0.4.0
+	github.com/k0sproject/rig/v2 v2.0.0-alpha.1
 	github.com/mohae/deepcopy v0.0.0-20170929034955-c48cc78d4826
 	github.com/muesli/termenv v0.15.2
 	github.com/spf13/cobra v1.2.1
 	golang.org/x/exp v0.0.0-20231006140011-7918f672742d
-	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -34,7 +35,6 @@ require (
 	github.com/jcmturner/goidentity/v6 v6.0.1 // indirect
 	github.com/jcmturner/gokrb5/v8 v8.4.4 // indirect
 	github.com/jcmturner/rpc/v2 v2.0.3 // indirect
-	github.com/k0sproject/rig/v2 v2.0.0-alpha.1 // indirect
 	github.com/kevinburke/ssh_config v1.2.0 // indirect
 	github.com/lucasb-eyer/go-colorful v1.2.0 // indirect
 	github.com/masterzen/simplexml v0.0.0-20190410153822-31eea3082786 // indirect

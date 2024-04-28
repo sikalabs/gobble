@@ -1,6 +1,9 @@
 package config
 
-import "github.com/sikalabs/gobble/pkg/play"
+import (
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/play"
+)
 
 type ConfigMeta struct {
 	SchemaVersion int `yaml:"schema_version"`
@@ -20,19 +23,15 @@ type GlobalConfig struct {
 	Vars                    map[string]interface{} `yaml:"vars"`
 }
 
-type InludePlays struct {
-	Source string `yaml:"source"`
-}
-
 type Config struct {
-	Meta               ConfigMeta              `yaml:"meta"`
-	Global             GlobalConfig            `yaml:"global"`
-	Hosts              map[string][]ConfigHost `yaml:"hosts"`
-	RigHosts           map[string][]HostConfig `yaml:"rig_hosts"`
-	HostsAliases       map[string][]string     `yaml:"hosts_aliases"`
-	Plays              []play.Play             `yaml:"plays"`
-	IncludePlaysBefore []InludePlays           `yaml:"include_plays_before"`
-	IncludePlaysAfter  []InludePlays           `yaml:"include_plays_after"`
+	Meta               ConfigMeta                    `yaml:"meta"`
+	Global             GlobalConfig                  `yaml:"global"`
+	Hosts              map[string][]ConfigHost       `yaml:"hosts"`
+	RigHosts           map[string][]*host.HostConfig `yaml:"rig_hosts"`
+	HostsAliases       map[string][]string           `yaml:"hosts_aliases"`
+	Plays              []play.Play                   `yaml:"plays"`
+	IncludePlaysBefore []play.InludePlays            `yaml:"include_plays_before"`
+	IncludePlaysAfter  []play.InludePlays            `yaml:"include_plays_after"`
 
 	AllHosts map[string][]ConfigHost
 	AllPlays []play.Play

@@ -7,5 +7,9 @@ type Play struct {
 	Sudo  bool        `yaml:"sudo"`
 	Tags  []string    `yaml:"tags"`
 	Hosts []string    `yaml:"hosts"`
-	Tasks []task.Task `yaml:"tasks"`
+	Tasks []task.Task `yaml:"-"`
+}
+
+type InludePlays struct {
+	Source string `yaml:"source"`
 }

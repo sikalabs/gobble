@@ -17,3 +17,18 @@ type TaskInput struct {
 type TaskOutput struct {
 	Error error
 }
+
+// BaseTask provides common fields for all tasks.
+type BaseTask struct {
+	Name string
+}
+
+// SetName sets the name of the task.
+func (bt *BaseTask) SetName(name string) {
+	bt.Name = name
+}
+
+// GetName returns the name of the task.
+func (bt *BaseTask) GetName() string {
+	return bt.Name
+}
