@@ -9,6 +9,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
 	"github.com/sikalabs/gobble/pkg/task/lib/print"
 	"github.com/sikalabs/gobble/pkg/task/lib/replace_string_in_local_file"
+	"github.com/sikalabs/gobble/pkg/task/lib/template"
 )
 
 // Task is the interface that all tasks need to implement.
@@ -47,4 +48,5 @@ func init() {
 	RegisterTask("chmod", func() Task { return &chmod.Task{} })
 	RegisterTask("replace_string_in_local_file", func() Task { return &replace_string_in_local_file.Task{} })
 	RegisterTask("print", func() Task { return &print.Task{} })
+	RegisterTask("template", func() Task { return &template.Task{} })
 }

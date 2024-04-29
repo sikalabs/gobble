@@ -2,6 +2,7 @@ package template
 
 import (
 	"fmt"
+	"github.com/sikalabs/gobble/pkg/host"
 	"os"
 	text_template "text/template"
 
@@ -11,17 +12,15 @@ import (
 	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
-type TaskTemplate struct {
+type Task struct {
+	libtask.BaseTask
 	Path      string      `yaml:"path"`
 	Template  string      `yaml:"template"`
 	ExtraData interface{} `yaml:"extra_data"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskTemplate,
-) libtask.TaskOutput {
-	tmpl, err := text_template.New("template").Parse(taskParams.Template)
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
+	tmpl, err := text_template.New("template").Parse(t.Template)
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
@@ -36,7 +35,7 @@ func Run(
 	err = tmpl.Execute(tmpFile, map[string]interface{}{
 		"Config": taskInput.Config,
 		"Vars":   taskInput.Vars,
-		"Extra":  taskParams.ExtraData,
+		"Extra":  t.ExtraData,
 	})
 	if err != nil {
 		return libtask.TaskOutput{
@@ -50,17 +49,15 @@ func Run(
 	}
 	out := cp.Run(taskInput, cp.TaskCp{
 		LocalSrc:  tmpFile.Name(),
-		RemoteDst: taskParams.Path,
+		RemoteDst: t.Path,
 	})
 	if out.Error != nil {
 		return libtask.TaskOutput{
 			Error: out.Error,
 		}
 	}
-	out = chmod.Run(taskInput, chmod.TaskChmod{
-		Path: taskParams.Path,
-		Perm: "644",
-	})
+	chmod := chmod.Task{Path: t.Path, Perm: "644"}
+	out = chmod.Run(taskInput, host)
 	if out.Error != nil {
 		return libtask.TaskOutput{
 			Error: out.Error,
