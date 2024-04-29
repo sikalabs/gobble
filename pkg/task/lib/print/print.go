@@ -2,6 +2,7 @@ package print
 
 import (
 	"fmt"
+	"github.com/sikalabs/gobble/pkg/host"
 	"os"
 	text_template "text/template"
 
@@ -9,15 +10,13 @@ import (
 	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
-type TaskPrint struct {
+type Task struct {
+	libtask.BaseTask
 	Template string `yaml:"template"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskPrint,
-) libtask.TaskOutput {
-	tmpl, err := text_template.New("template").Parse(taskParams.Template)
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
+	tmpl, err := text_template.New("template").Parse(t.Template)
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
