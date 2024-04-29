@@ -7,6 +7,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/task/lib/authorized_key"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
+	"github.com/sikalabs/gobble/pkg/task/lib/ping"
 	"github.com/sikalabs/gobble/pkg/task/lib/pkg_manager"
 	"github.com/sikalabs/gobble/pkg/task/lib/print"
 	"github.com/sikalabs/gobble/pkg/task/lib/replace_string_in_local_file"
@@ -51,4 +52,5 @@ func init() {
 	RegisterTask("print", func() Task { return &print.Task{} })
 	RegisterTask("template", func() Task { return &template.Task{} })
 	RegisterTask("pkg_manager", func() Task { return &pkg_manager.Task{} })
+	RegisterTask("ping", func() Task { return &ping.Task{} })
 }

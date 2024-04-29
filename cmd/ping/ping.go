@@ -4,12 +4,12 @@ import (
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/run"
+	ping "github.com/sikalabs/gobble/pkg/task/lib/ping"
 	"os"
 
 	"github.com/sikalabs/gobble/cmd/root"
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"github.com/sikalabs/gobble/pkg/task/lib/echo"
 	"github.com/spf13/cobra"
 )
 
@@ -38,11 +38,10 @@ var Cmd = &cobra.Command{
 			logger.Log.Fatal(err)
 		}
 
-		task := echo.Task{
+		task := ping.Task{
 			BaseTask: libtask.BaseTask{
 				Name: "ping all hosts",
 			},
-			Message: "ping",
 		}
 		ti := libtask.TaskInput{
 			Config:                  conf,
@@ -53,7 +52,6 @@ var Cmd = &cobra.Command{
 			Quiet:                   false,
 		}
 
-		logger.Log.Printf("Pinging hosts using SSH ...")
 		out := run.DispatchTask(&task, ti, targets)
 		isOK := out.Error == nil
 		if isOK {
