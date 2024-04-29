@@ -47,10 +47,17 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		exec_utils.RawExecStdout("cat", tmpFile.Name())
 		fmt.Println("EOF")
 	}
-	out := cp.Run(taskInput, cp.TaskCp{
+
+	//cp Task
+	cpTask := cp.Task{
+		BaseTask: libtask.BaseTask{
+			Name: t.Name,
+		},
 		LocalSrc:  tmpFile.Name(),
 		RemoteDst: t.Path,
-	})
+	}
+
+	out := cpTask.Run(taskInput, host)
 	if out.Error != nil {
 		return libtask.TaskOutput{
 			Error: out.Error,
