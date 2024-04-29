@@ -16,6 +16,6 @@ type HostConfig struct {
 
 type Host struct {
 	Client *rig.Client
-	fs     remotefs.FS
+	Fs     remotefs.FS
 	Vars   map[string]interface{}
 }

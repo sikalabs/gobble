@@ -112,7 +112,7 @@ func Run(
 				Dry:                     dryRun,
 				Quiet:                   quietOutput,
 			}
-			out := DispatchTask(t, taskInput, taskTargets)
+			out := DispatchTaskP(t, taskInput, taskTargets)
 			if out.Error != nil {
 				return out.Error
 			}

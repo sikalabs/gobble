@@ -48,7 +48,7 @@ func setupHost(hostConfig *HostConfig) (*Host, error) {
 		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
-	return &Host{Client: client, Vars: hostConfig.Vars, fs: remotefs.NewFS(client)}, nil
+	return &Host{Client: client, Vars: hostConfig.Vars, Fs: remotefs.NewFS(client)}, nil
 }
 
 // createConnection creates a connection to a host
