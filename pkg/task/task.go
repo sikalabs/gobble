@@ -7,6 +7,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/task/lib/authorized_key"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
+	"github.com/sikalabs/gobble/pkg/task/lib/replace_string_in_local_file"
 )
 
 // Task is the interface that all tasks need to implement.
@@ -43,4 +44,5 @@ func init() {
 	RegisterTask("command", func() Task { return &command.Task{} })
 	RegisterTask("authorized_key", func() Task { return &authorized_key.Task{} })
 	RegisterTask("chmod", func() Task { return &chmod.Task{} })
+	RegisterTask("replace_string_in_local_file", func() Task { return &replace_string_in_local_file.Task{} })
 }

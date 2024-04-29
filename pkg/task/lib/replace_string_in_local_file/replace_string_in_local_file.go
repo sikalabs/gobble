@@ -1,6 +1,7 @@
 package replace_string_in_local_file
 
 import (
+	"github.com/sikalabs/gobble/pkg/host"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -9,16 +10,14 @@ import (
 	"github.com/sikalabs/gobble/pkg/utils/template_utils"
 )
 
-type TaskReplaceStringInLocalFile struct {
+type Task struct {
+	libtask.BaseTask
 	Path    string `yaml:"path"`
 	Find    string `yaml:"find"`
 	Replace string `yaml:"replace"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskReplaceStringInLocalFile,
-) libtask.TaskOutput {
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
 	vars := map[string]interface{}{
 		"Config": taskInput.Config,
 		"Vars":   taskInput.Vars,
@@ -26,7 +25,7 @@ func Run(
 
 	// Render find string
 	find, err := template_utils.RenderTemplateToString(
-		taskParams.Find, "TaskReplaceStringInLocalFile.Find", vars,
+		t.Find, "TaskReplaceStringInLocalFile.Find", vars,
 	)
 	if err != nil {
 		return libtask.TaskOutput{
@@ -36,7 +35,7 @@ func Run(
 
 	// Render replace string
 	replace, err := template_utils.RenderTemplateToString(
-		taskParams.Replace, "TaskReplaceStringInLocalFile.Replace", vars,
+		t.Replace, "TaskReplaceStringInLocalFile.Replace", vars,
 	)
 	if err != nil {
 		return libtask.TaskOutput{
@@ -45,7 +44,7 @@ func Run(
 	}
 
 	err = replaceStringInFile(
-		taskParams.Path,
+		t.Path,
 		find,
 		replace,
 	)
