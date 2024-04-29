@@ -5,6 +5,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/authorized_key"
+	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
 )
 
@@ -41,4 +42,5 @@ func NewTask(typeName string) (Task, error) {
 func init() {
 	RegisterTask("command", func() Task { return &command.Task{} })
 	RegisterTask("authorized_key", func() Task { return &authorized_key.Task{} })
+	RegisterTask("chmod", func() Task { return &chmod.Task{} })
 }
