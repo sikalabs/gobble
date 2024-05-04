@@ -5,6 +5,7 @@ import (
 	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/utils"
+	"os"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/utils/template_utils"
@@ -48,7 +49,17 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 
 		// Upload
-		err = remotefs.Upload(host.Fs, localSrc, remoteDst)
+		info, err := os.Stat(localSrc)
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+		if info.IsDir() {
+			err = remotefs.UploadDirectory(host.Fs, localSrc, remoteDst)
+		} else {
+			err = remotefs.Upload(host.Fs, localSrc, remoteDst)
+		}
 		return libtask.TaskOutput{
 			Error: err,
 		}
@@ -74,7 +85,18 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 
 		// Download
-		err = remotefs.Download(host.Fs, remoteSrc, localDst)
+		info, err := host.Fs.Stat(remoteSrc)
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+		if info.IsDir() {
+			err = remotefs.DownloadDirectory(host.Fs, remoteSrc, localDst)
+		} else {
+			err = remotefs.Download(host.Fs, remoteSrc, localDst)
+		}
+
 		return libtask.TaskOutput{
 			Error: err,
 		}

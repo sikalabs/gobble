@@ -14,7 +14,7 @@ require (
 	gopkg.in/yaml.v3 v3.0.1
 )
 
-replace github.com/k0sproject/rig/v2 v2.0.0-alpha.1 => github.com/kaplan-michael/rig/v2 v2.0.0-20240429062255-de78d31775f2
+replace github.com/k0sproject/rig/v2 v2.0.0-alpha.1 => github.com/kaplan-michael/rig/v2 v2.0.0-20240504234217-54e8e2d723b8
 
 require (
 	github.com/Azure/go-ntlmssp v0.0.0-20221128193559-754e69321358 // indirect
