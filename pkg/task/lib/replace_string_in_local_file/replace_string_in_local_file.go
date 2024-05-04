@@ -2,6 +2,7 @@ package replace_string_in_local_file
 
 import (
 	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/utils"
 	"io/ioutil"
 	"os"
 	"strings"
@@ -20,7 +21,7 @@ type Task struct {
 func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
 	vars := map[string]interface{}{
 		"Config": taskInput.Config,
-		"Vars":   taskInput.Vars,
+		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
 	}
 
 	// Render find string

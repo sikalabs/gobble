@@ -3,6 +3,7 @@ package template
 import (
 	"fmt"
 	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	text_template "text/template"
 
@@ -34,7 +35,7 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 	}
 	err = tmpl.Execute(tmpFile, map[string]interface{}{
 		"Config": taskInput.Config,
-		"Vars":   taskInput.Vars,
+		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
 		"Extra":  t.ExtraData,
 	})
 	if err != nil {
