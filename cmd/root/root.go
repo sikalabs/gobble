@@ -2,6 +2,7 @@ package root
 
 import (
 	"github.com/sikalabs/gobble/pkg/logger"
+	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/version"
 	"github.com/spf13/cobra"
 )
@@ -14,6 +15,7 @@ var Cmd = &cobra.Command{
 	PersistentPreRun: func(cmd *cobra.Command, args []string) {
 		// Initialize the logger with the verbosity flag
 		logger.InitCharmLogger(FlagVerbosity)
+		printer.InitPrinter(FlagVerbosity)
 	},
 }
 

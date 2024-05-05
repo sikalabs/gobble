@@ -7,7 +7,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/play"
-	"golang.org/x/exp/slices"
+	"github.com/sikalabs/gobble/pkg/printer"
 )
 
 func RunFromFile(
@@ -65,49 +65,23 @@ func Run(
 		c.AllPlays = append(c.AllPlays, plays...)
 	}
 
-	lenPlays := config.LenPlays(c, onlyTags, skipTags)
-	playI := 0
-	for _, play := range c.AllPlays {
-		skip := false
-		for _, tag := range skipTags {
-			if slices.Contains(play.Tags, tag) {
-				skip = true
-			}
-		}
-		if skip {
-			continue
-		}
-		if len(onlyTags) > 0 {
-			skip = true
-			for _, tag := range onlyTags {
-				if slices.Contains(play.Tags, tag) {
-					skip = false
-				}
-			}
-		}
-		if skip {
-			continue
-		}
-		playI++
+	// Filter plays by tags & set length
+	filteredPlays := play.FilterPlays(c.AllPlays, onlyTags, skipTags)
+	printer.GlobalPrinter.SetPlayLength(len(filteredPlays))
 
-		lenTasks := len(play.Tasks)
-		taskI := 0
-		for _, t := range play.Tasks {
-			taskI++
+	// Run plays
+	for _, p := range filteredPlays {
+		printer.GlobalPrinter.PrintPlay(p.Name)
+		printer.GlobalPrinter.SetTaskLength(len(p.Tasks))
 
-			if !quietOutput {
-				fmt.Printf("+ play: %s (%d/%d)\n", play.Name, playI, lenPlays)
-				fmt.Printf("  task: %s (%d/%d)\n", t.GetName(), taskI, lenTasks)
-				if play.Sudo {
-					fmt.Printf("  sudo: %t\n", play.Sudo)
-				}
-			}
-
-			taskTargets := matchHostsToTask(play.Hosts, targets)
+		// filter tasks
+		for _, t := range p.Tasks {
+			printer.GlobalPrinter.PrintTask(t.GetName())
+			taskTargets := matchHostsToTask(p.Hosts, targets)
 			taskInput := libtask.TaskInput{
 				Config:                  c,
 				NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
-				Sudo:                    play.Sudo,
+				Sudo:                    p.Sudo,
 				Vars:                    c.Global.Vars,
 				Dry:                     dryRun,
 				Quiet:                   quietOutput,
@@ -118,7 +92,6 @@ func Run(
 			}
 			fmt.Println(``)
 
-			return nil
 		}
 	}
 	return nil

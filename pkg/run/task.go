@@ -5,6 +5,7 @@ import (
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
+	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/task"
 	"golang.org/x/exp/slices"
 	"sync"
@@ -26,6 +27,7 @@ func DispatchTask(task task.Task, input libtask.TaskInput, targets host.Targets)
 
 func DispatchTaskP(task task.Task, input libtask.TaskInput, targets host.Targets) libtask.TaskOutput {
 	lenTargets := config.LenTargets(targets)
+	printer.GlobalPrinter.SetHostLength(lenTargets)
 	results := make(chan libtask.TaskOutput, lenTargets)
 	var wg sync.WaitGroup
 
@@ -34,10 +36,8 @@ func DispatchTaskP(task task.Task, input libtask.TaskInput, targets host.Targets
 			wg.Add(1) // Increment the WaitGroup counter.
 			go func(h *host.Host, i int) {
 				defer wg.Done()
-				if !input.Quiet {
-					fmt.Printf("  host: %s (protocol %s) (%d/%d)\n", h.Client.Address(), h.Client.Protocol(), i+1, lenTargets)
-				}
 				results <- task.Run(input, h) // Run task and send the result to the channel.
+				printer.GlobalPrinter.PrintHost(h.Client.Address(), h.Client.Protocol())
 			}(h, i)
 		}
 	}
