@@ -45,6 +45,7 @@ func setupHost(hostConfig *HostConfig) (*Host, error) {
 	}
 	client, err := rig.NewClient(rig.WithConnection(conn), rig.WithLogger(logger.Slog))
 	if hostConfig.SudoPassword != "" {
+		logger.Log.Warn("Using sudo with password is deprecated, set up passwordless along with ssh keys")
 		client, err = rig.NewClient(rig.WithConnection(conn), rig.WithLogger(logger.Slog), rig.WithSudoProvider(sudo.NewSudoProviderWithPass(hostConfig.SudoPassword)))
 	}
 	if err != nil {
@@ -71,6 +72,7 @@ func createConnection(hostConfig *HostConfig) (protocol.Connection, error) {
 		cfg := *hostConfig.SSH
 		//handle password auth
 		if cfg.Password != "" {
+			logger.Log.Warn("Using ssh with password is deprecated, please use ssh keys")
 			cfg.Config.AuthMethods = append(cfg.Config.AuthMethods, go_ssh.Password(cfg.Password))
 			return ssh.NewConnection(cfg.Config)
 		} else {

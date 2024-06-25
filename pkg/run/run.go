@@ -79,12 +79,10 @@ func Run(
 			printer.GlobalPrinter.PrintTask(t.GetName())
 			taskTargets := matchHostsToTask(p.Hosts, targets)
 			taskInput := libtask.TaskInput{
-				Config:                  c,
-				NoStrictHostKeyChecking: c.Global.NoStrictHostKeyChecking,
-				Sudo:                    p.Sudo,
-				Vars:                    c.Global.Vars,
-				Dry:                     dryRun,
-				Quiet:                   quietOutput,
+				Config: c,
+				Sudo:   p.Sudo,
+				Vars:   c.Global.Vars,
+				Dry:    dryRun,
 			}
 			out := DispatchTaskP(t, taskInput, taskTargets)
 			if out.Error != nil {
