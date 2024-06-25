@@ -10,6 +10,8 @@ import (
 	"github.com/k0sproject/rig/v2/protocol/ssh"
 	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/logger"
+	go_ssh "golang.org/x/crypto/ssh"
+	"time"
 )
 
 type Targets map[string][]*Host
@@ -33,6 +35,8 @@ func InitializeHosts(rigHosts map[string][]*HostConfig, hostAliases map[string][
 
 // setupHost configures and connects to a single host
 func setupHost(hostConfig *HostConfig) (*Host, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
 	conn, err := createConnection(hostConfig)
 	if err != nil {
@@ -43,7 +47,7 @@ func setupHost(hostConfig *HostConfig) (*Host, error) {
 		return nil, fmt.Errorf("failed to create rig client: %w", err)
 	}
 
-	err = client.Connect(context.Background())
+	err = client.Connect(ctx)
 	if err != nil {
 		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
@@ -61,7 +65,13 @@ func createConnection(hostConfig *HostConfig) (protocol.Connection, error) {
 	} else if hostConfig.SSH != nil {
 
 		cfg := *hostConfig.SSH
-		return ssh.NewConnection(cfg)
+		//handle password auth
+		if cfg.Password != "" {
+			cfg.Config.AuthMethods = append(cfg.Config.AuthMethods, go_ssh.Password(cfg.Password))
+			return ssh.NewConnection(cfg.Config)
+		} else {
+			return ssh.NewConnection(cfg.Config)
+		}
 
 	} else if hostConfig.Opensh != nil {
 

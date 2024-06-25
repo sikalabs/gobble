@@ -8,7 +8,7 @@ import (
 )
 
 type HostConfig struct {
-	SSH    *ssh.Config            `yaml:"ssh,omitempty"`
+	SSH    *SSHConfig             `yaml:"ssh,omitempty"`
 	Opensh *openssh.Config        `yaml:"openssh,omitempty"`
 	Local  bool                   `yaml:"local,omitempty"`
 	Vars   map[string]interface{} `yaml:"vars"`
@@ -18,4 +18,9 @@ type Host struct {
 	Client *rig.Client
 	Fs     remotefs.FS
 	Vars   map[string]interface{}
+}
+
+type SSHConfig struct {
+	ssh.Config
+	Password string `yaml:"password"`
 }
