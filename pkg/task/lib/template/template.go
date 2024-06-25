@@ -1,8 +1,8 @@
 package template
 
 import (
-	"fmt"
 	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	text_template "text/template"
@@ -10,7 +10,6 @@ import (
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/cp"
-	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
 type Task struct {
@@ -44,9 +43,23 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 	}
 	if taskInput.Dry {
-		fmt.Println("cat > " + tmpFile.Name() + " <<EOF")
-		exec_utils.RawExecStdout("cat", tmpFile.Name())
-		fmt.Println("EOF")
+
+		// Ensure the data is written and file is closed for reading
+		err = tmpFile.Close()
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+
+		// Read the content of the temporary file
+		content, err := os.ReadFile(tmpFile.Name())
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+		printer.GlobalPrinter.Print("", string(content))
 	}
 
 	//cp Task

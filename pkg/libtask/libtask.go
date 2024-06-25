@@ -1,17 +1,10 @@
 package libtask
 
 type TaskInput struct {
-	SSHTarget               string
-	SSHPort                 int
-	SSHPassword             string
-	SSHOptions              []string
-	NoStrictHostKeyChecking bool
-	Sudo                    bool
-	SudoPassword            string
-	Config                  interface{}
-	Vars                    map[string]interface{}
-	Dry                     bool
-	Quiet                   bool
+	Sudo   bool
+	Config interface{}
+	Vars   map[string]interface{}
+	Dry    bool
 }
 
 type TaskOutput struct {

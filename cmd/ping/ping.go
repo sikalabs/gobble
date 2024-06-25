@@ -44,12 +44,10 @@ var Cmd = &cobra.Command{
 			},
 		}
 		ti := libtask.TaskInput{
-			Config:                  conf,
-			NoStrictHostKeyChecking: conf.Global.NoStrictHostKeyChecking,
-			Sudo:                    false,
-			Vars:                    conf.Global.Vars,
-			Dry:                     false,
-			Quiet:                   false,
+			Config: conf,
+			Sudo:   false,
+			Vars:   conf.Global.Vars,
+			Dry:    false,
 		}
 
 		out := run.DispatchTask(&task, ti, targets)

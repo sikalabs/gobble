@@ -1,14 +1,13 @@
 package print
 
 import (
-	"fmt"
 	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	text_template "text/template"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
 type Task struct {
@@ -40,21 +39,24 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 	}
 
-	if taskInput.Quiet {
-		fmt.Println("cat <<EOF")
-	}
-
-	fmt.Println("OUTPUT:")
-	err = exec_utils.RawExecStdout("cat", tmpFile.Name())
+	// Ensure the data is written and file is closed for reading
+	err = tmpFile.Close()
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
 		}
 	}
 
-	if taskInput.Quiet {
-		fmt.Println("EOF")
+	// Read the content of the temporary file
+	content, err := os.ReadFile(tmpFile.Name())
+	if err != nil {
+		return libtask.TaskOutput{
+			Error: err,
+		}
 	}
+
+	printer.GlobalPrinter.Print("", "OUTPUT:")
+	printer.GlobalPrinter.Print("", string(content))
 
 	return libtask.TaskOutput{
 		Error: nil,
