@@ -10,6 +10,7 @@ import (
 	"github.com/k0sproject/rig/v2/protocol/ssh"
 	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/logger"
+	"github.com/sikalabs/gobble/pkg/sudo"
 	go_ssh "golang.org/x/crypto/ssh"
 	"time"
 )
@@ -43,6 +44,9 @@ func setupHost(hostConfig *HostConfig) (*Host, error) {
 		return nil, err
 	}
 	client, err := rig.NewClient(rig.WithConnection(conn), rig.WithLogger(logger.Slog))
+	if hostConfig.SudoPassword != "" {
+		client, err = rig.NewClient(rig.WithConnection(conn), rig.WithLogger(logger.Slog), rig.WithSudoProvider(sudo.NewSudoProviderWithPass(hostConfig.SudoPassword)))
+	}
 	if err != nil {
 		return nil, fmt.Errorf("failed to create rig client: %w", err)
 	}

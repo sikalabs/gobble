@@ -8,10 +8,11 @@ import (
 )
 
 type HostConfig struct {
-	SSH    *SSHConfig             `yaml:"ssh,omitempty"`
-	Opensh *openssh.Config        `yaml:"openssh,omitempty"`
-	Local  bool                   `yaml:"local,omitempty"`
-	Vars   map[string]interface{} `yaml:"vars"`
+	SSH          *SSHConfig             `yaml:"ssh,omitempty"`
+	Opensh       *openssh.Config        `yaml:"openssh,omitempty"`
+	Local        bool                   `yaml:"local,omitempty"`
+	Vars         map[string]interface{} `yaml:"vars"`
+	SudoPassword string                 `yaml:"sudo_password,omitempty"`
 }
 
 type Host struct {
@@ -21,6 +22,6 @@ type Host struct {
 }
 
 type SSHConfig struct {
-	ssh.Config
-	Password string `yaml:"password"`
+	ssh.Config `yaml:",inline"`
+	Password   string `yaml:"password,omitempty"`
 }

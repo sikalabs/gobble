@@ -5,12 +5,11 @@ import (
 	"context"
 	"github.com/k0sproject/rig/v2/cmd"
 	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/utils"
 	"text/template"
 	"time"
-
-	"github.com/sikalabs/gobble/pkg/libtask"
 )
 
 type Task struct {
@@ -38,7 +37,13 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 			Error: err,
 		}
 	}
-	err = host.Client.ExecContext(ctx, buf.String(),
+
+	client := host.Client
+	if taskInput.Sudo {
+		client = host.Client.Sudo()
+	}
+
+	err = client.ExecContext(ctx, buf.String(),
 		cmd.LogInput(true),
 		cmd.StreamOutput(),
 		cmd.LogError(true),

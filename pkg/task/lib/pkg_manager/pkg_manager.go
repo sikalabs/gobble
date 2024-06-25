@@ -20,6 +20,10 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 	defer cancel()
 
 	pkgManager, err := host.Client.PackageManagerService.GetPackageManager()
+	if taskInput.Sudo {
+		pkgManager, err = host.Client.Sudo().GetPackageManager()
+	}
+
 	if err != nil {
 		return libtask.TaskOutput{Error: err}
 	}
