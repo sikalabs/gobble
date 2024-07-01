@@ -59,7 +59,8 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 				Error: err,
 			}
 		}
-		printer.GlobalPrinter.Print("", string(content))
+		format := "--------------------\n%s\n--------------------\n"
+		printer.GlobalPrinter.Print(format, string(content))
 	}
 
 	//cp Task
@@ -77,8 +78,8 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 			Error: out.Error,
 		}
 	}
-	chmod := chmod.Task{Path: t.Path, Perm: "644"}
-	out = chmod.Run(taskInput, host)
+	chmodTask := chmod.Task{Path: t.Path, Perm: "644"}
+	out = chmodTask.Run(taskInput, host)
 	if out.Error != nil {
 		return libtask.TaskOutput{
 			Error: out.Error,

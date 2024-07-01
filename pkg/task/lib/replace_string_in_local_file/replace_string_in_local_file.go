@@ -3,7 +3,6 @@ package replace_string_in_local_file
 import (
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/utils"
-	"io/ioutil"
 	"os"
 	"strings"
 
@@ -65,7 +64,7 @@ func replaceStringInFile(filename, searchStr, replaceStr string) error {
 	newContent := strings.ReplaceAll(string(content), searchStr, replaceStr)
 
 	// write the updated content back to the file
-	err = ioutil.WriteFile(filename, []byte(newContent), 0644)
+	err = os.WriteFile(filename, []byte(newContent), 0644)
 	if err != nil {
 		return err
 	}

@@ -27,6 +27,13 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
 	}
 
+	// Create a new FS instance
+	rfs := remotefs.NewFS(host.Client)
+	if taskInput.Sudo {
+		rfs = remotefs.NewFS(host.Client.Sudo())
+	}
+
+	// Determine the direction of the copy
 	if t.LocalSrc != "" && t.RemoteDst != "" {
 		// Render TaskCp.LocalSrc string
 		localSrc, err := template_utils.RenderTemplateToString(
@@ -56,9 +63,9 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 			}
 		}
 		if info.IsDir() {
-			err = remotefs.UploadDirectory(host.Fs, localSrc, remoteDst)
+			err = remotefs.UploadDirectory(rfs, localSrc, remoteDst)
 		} else {
-			err = remotefs.Upload(host.Fs, localSrc, remoteDst)
+			err = remotefs.Upload(rfs, localSrc, remoteDst)
 		}
 		return libtask.TaskOutput{
 			Error: err,
@@ -85,16 +92,16 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 
 		// Download
-		info, err := host.Fs.Stat(remoteSrc)
+		info, err := rfs.Stat(remoteSrc)
 		if err != nil {
 			return libtask.TaskOutput{
 				Error: err,
 			}
 		}
 		if info.IsDir() {
-			err = remotefs.DownloadDirectory(host.Fs, remoteSrc, localDst)
+			err = remotefs.DownloadDirectory(rfs, remoteSrc, localDst)
 		} else {
-			err = remotefs.Download(host.Fs, remoteSrc, localDst)
+			err = remotefs.Download(rfs, remoteSrc, localDst)
 		}
 
 		return libtask.TaskOutput{

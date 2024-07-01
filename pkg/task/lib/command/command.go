@@ -18,15 +18,18 @@ type Task struct {
 }
 
 func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
+	// Create a new context with a timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	// Parse the command template
 	tmpl, err := template.New("cmd").Parse(t.Cmd)
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
 		}
 	}
+	// Execute the command template
 	var buf bytes.Buffer
 	err = tmpl.Execute(&buf, map[string]interface{}{
 		"Config": taskInput.Config,
@@ -38,11 +41,13 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 	}
 
+	// Determine the client to use
 	client := host.Client
 	if taskInput.Sudo {
 		client = host.Client.Sudo()
 	}
 
+	// Execute the command
 	err = client.ExecContext(ctx, buf.String(),
 		cmd.LogInput(true),
 		cmd.StreamOutput(),

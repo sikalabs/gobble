@@ -16,9 +16,11 @@ type Task struct {
 }
 
 func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
+	// Create a new context with a timeout
 	ctx, cancel := context.WithTimeout(context.Background(), 60*time.Second)
 	defer cancel()
 
+	// Get the package manager
 	pkgManager, err := host.Client.PackageManagerService.GetPackageManager()
 	if taskInput.Sudo {
 		pkgManager, err = host.Client.Sudo().GetPackageManager()
@@ -27,7 +29,7 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 	if err != nil {
 		return libtask.TaskOutput{Error: err}
 	}
-
+	// update packages
 	if t.Update {
 		err := pkgManager.Update(ctx)
 		if err != nil {
@@ -37,6 +39,7 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		}
 	}
 
+	// install or remove the package
 	if t.State == "" {
 		t.State = "present"
 	}

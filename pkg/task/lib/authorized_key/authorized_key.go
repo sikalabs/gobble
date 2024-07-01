@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"os"
@@ -16,21 +17,26 @@ type Task struct {
 }
 
 func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
-
-	if host.Fs.FileExist("~/.ssh/authorized_keys") {
+	// Create a new FS instance
+	rfs := remotefs.NewFS(host.Client)
+	if taskInput.Sudo {
+		rfs = remotefs.NewFS(host.Client.Sudo())
 	}
-	sshDir := path.Join(host.Fs.UserHomeDir(), ".ssh")
+
+	if rfs.FileExist("~/.ssh/authorized_keys") {
+	}
+	sshDir := path.Join(rfs.UserHomeDir(), ".ssh")
 	authKeysFile := path.Join(sshDir, "authorized_keys")
 
-	if !host.Fs.FileExist(sshDir) {
-		err := host.Fs.MkdirAll(sshDir, 0755)
+	if !rfs.FileExist(sshDir) {
+		err := rfs.MkdirAll(sshDir, 0755)
 		if err != nil {
 			return libtask.TaskOutput{Error: fmt.Errorf("failed to create directory: %w", err)}
 		}
 	}
 
 	// Read the authorized_keys file
-	data, err := host.Fs.ReadFile(authKeysFile)
+	data, err := rfs.ReadFile(authKeysFile)
 	if err != nil {
 		if errors.Is(err, os.ErrNotExist) {
 			data = []byte{} // If the file doesn't exist, start with empty data
@@ -46,7 +52,7 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 
 	// Append the key to the authorized_keys file
 	data = append(data, []byte("\n"+t.Key+"\n")...)
-	if err := host.Fs.WriteFile(authKeysFile, data, 0644); err != nil {
+	if err := rfs.WriteFile(authKeysFile, data, 0644); err != nil {
 		return libtask.TaskOutput{Error: err}
 	}
 

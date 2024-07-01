@@ -54,9 +54,8 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 			Error: err,
 		}
 	}
-
-	printer.GlobalPrinter.Print("", "OUTPUT:")
-	printer.GlobalPrinter.Print("", string(content))
+	format := "OUTPUT:\n--------------------\n%s\n--------------------\n"
+	printer.GlobalPrinter.Print(format, string(content))
 
 	return libtask.TaskOutput{
 		Error: nil,
