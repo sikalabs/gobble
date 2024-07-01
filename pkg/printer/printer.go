@@ -13,6 +13,7 @@ type Printer struct {
 	taskMu     sync.Mutex // Mutex for task-related prints
 	hostMu     sync.Mutex // Mutex for host-related prints
 	print      sync.Mutex // Mutex for general prints
+	deprecated sync.Mutex // Mutex for deprecated warnings
 	playCount  int64      // Counter for the number of plays
 	taskCount  int64      // Counter for the number of tasks
 	hostCount  int64      // Counter for the number of hosts
@@ -81,16 +82,25 @@ func (p *Printer) PrintHost(host, protocol string) {
 }
 
 // Print prints any data with optional format, checking the verbosity level.
-func (p *Printer) Print(format string, a ...interface{}) {
+func (p *Printer) Print(format string, text ...interface{}) {
 	if p.verbosity > 0 {
 		p.print.Lock()
 		defer p.print.Unlock()
 		if format == "" {
 			// Print without formatting if format string is empty
-			fmt.Println(a...)
+			fmt.Println(text...)
 		} else {
 			// Print with formatting
-			fmt.Printf(format, a...)
+			fmt.Printf(format, text...)
 		}
+	}
+}
+
+func (p *Printer) PrintDeprecated(text string) {
+	if p.verbosity > 0 {
+		p.deprecated.Lock()
+		fmt.Printf(formatDeprecated(text))
+		p.deprecated.Unlock()
+
 	}
 }

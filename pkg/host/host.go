@@ -8,8 +8,8 @@ import (
 	"github.com/k0sproject/rig/v2/protocol/localhost"
 	"github.com/k0sproject/rig/v2/protocol/openssh"
 	"github.com/k0sproject/rig/v2/protocol/ssh"
-	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/logger"
+	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/sudo"
 	go_ssh "golang.org/x/crypto/ssh"
 	"time"
@@ -45,7 +45,9 @@ func setupHost(hostConfig *HostConfig) (*Host, error) {
 	}
 	client, err := rig.NewClient(rig.WithConnection(conn), rig.WithLogger(logger.Slog))
 	if hostConfig.SudoPassword != "" {
-		logger.Log.Warn("Using sudo with password is deprecated, set up passwordless along with ssh keys")
+		warn := "Using sudo with password is deprecated, set up passwordless along with ssh keys"
+		printer.GlobalPrinter.PrintDeprecated(warn)
+		logger.Log.Warn(warn)
 		client, err = rig.NewClient(rig.WithConnection(conn), rig.WithLogger(logger.Slog), rig.WithSudoProvider(sudo.NewSudoProviderWithPass(hostConfig.SudoPassword)))
 	}
 	if err != nil {
@@ -57,7 +59,7 @@ func setupHost(hostConfig *HostConfig) (*Host, error) {
 		return nil, fmt.Errorf("failed to connect: %w", err)
 	}
 
-	return &Host{Client: client, Vars: hostConfig.Vars, Fs: remotefs.NewFS(client)}, nil
+	return &Host{Client: client, Vars: hostConfig.Vars}, nil
 }
 
 // createConnection creates a connection to a host
@@ -72,7 +74,9 @@ func createConnection(hostConfig *HostConfig) (protocol.Connection, error) {
 		cfg := *hostConfig.SSH
 		//handle password auth
 		if cfg.Password != "" {
-			logger.Log.Warn("Using ssh with password is deprecated, please use ssh keys")
+			warn := "Using ssh with password is deprecated, please use ssh keys"
+			printer.GlobalPrinter.PrintDeprecated(warn)
+			logger.Log.Warn(warn)
 			cfg.Config.AuthMethods = append(cfg.Config.AuthMethods, go_ssh.Password(cfg.Password))
 			return ssh.NewConnection(cfg.Config)
 		} else {

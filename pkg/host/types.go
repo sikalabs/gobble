@@ -4,7 +4,6 @@ import (
 	"github.com/k0sproject/rig/v2"
 	"github.com/k0sproject/rig/v2/protocol/openssh"
 	"github.com/k0sproject/rig/v2/protocol/ssh"
-	"github.com/k0sproject/rig/v2/remotefs"
 )
 
 type HostConfig struct {
@@ -17,7 +16,6 @@ type HostConfig struct {
 
 type Host struct {
 	Client *rig.Client
-	Fs     remotefs.FS
 	Vars   map[string]interface{}
 }
 

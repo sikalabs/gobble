@@ -41,6 +41,16 @@ var (
 			Foreground(lipgloss.AdaptiveColor{Light: "#FFA500", Dark: "#FFA500"}).
 			SetString("protocol:").
 			MarginLeft(1)
+
+	// DeprecatedStyle provides a style for plays
+	DeprecatedStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#FF0000", Dark: "#FF0000"}).
+			Bold(true).SetString("DEPRECATED:")
+
+	// BlockStyle provides a style for plays
+	BlockStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#FF0000", Dark: "#FF0000"}).
+			Bold(true).SetString("DEPRECATED:")
 )
 
 func formatHost(host, protocol string, hostIndex int64, totalHosts int) string {
@@ -56,4 +66,8 @@ func formatTask(task string, taskIndex int64, totalTasks int) string {
 func formatPlay(play string, playIndex int64, totalPlays int) string {
 	count := fmt.Sprintf("(%s)", strconv.FormatInt(playIndex, 10)+"/"+strconv.Itoa(totalPlays))
 	return PlayStyle.Render("play:") + TextStyle.Render(play) + IndexStyle.Render(count) + "\n"
+}
+
+func formatDeprecated(text string) string {
+	return DeprecatedStyle.Render(text) + "\n"
 }
