@@ -2,13 +2,17 @@ package cp
 
 import (
 	"fmt"
+	"github.com/k0sproject/rig/v2/remotefs"
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/utils"
+	"os"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 	"github.com/sikalabs/gobble/pkg/utils/template_utils"
 )
 
-type TaskCp struct {
+type Task struct {
+	libtask.BaseTask
 	// Copy from local to remote
 	LocalSrc  string `yaml:"local_src"`
 	RemoteDst string `yaml:"remote_dst"`
@@ -17,19 +21,23 @@ type TaskCp struct {
 	LocalDst  string `yaml:"local_dst"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskCp,
-) libtask.TaskOutput {
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
 	vars := map[string]interface{}{
 		"Config": taskInput.Config,
-		"Vars":   taskInput.Vars,
+		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
 	}
 
-	if taskParams.LocalSrc != "" && taskParams.RemoteDst != "" {
+	// Create a new FS instance
+	rfs := remotefs.NewFS(host.Client)
+	if taskInput.Sudo {
+		rfs = remotefs.NewFS(host.Client.Sudo())
+	}
+
+	// Determine the direction of the copy
+	if t.LocalSrc != "" && t.RemoteDst != "" {
 		// Render TaskCp.LocalSrc string
 		localSrc, err := template_utils.RenderTemplateToString(
-			taskParams.LocalSrc, "TaskCp.LocalSrc", vars,
+			t.LocalSrc, "TaskCp.LocalSrc", vars,
 		)
 		if err != nil {
 			return libtask.TaskOutput{
@@ -39,7 +47,7 @@ func Run(
 
 		// Render TaskCp.RemoteDst string
 		remoteDst, err := template_utils.RenderTemplateToString(
-			taskParams.RemoteDst, "TaskCp.RemoteDst", vars,
+			t.RemoteDst, "TaskCp.RemoteDst", vars,
 		)
 		if err != nil {
 			return libtask.TaskOutput{
@@ -47,15 +55,25 @@ func Run(
 			}
 		}
 
-		// do scp
-		err = exec_utils.SCP(taskInput, localSrc, remoteDst)
+		// Upload
+		info, err := os.Stat(localSrc)
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+		if info.IsDir() {
+			err = remotefs.UploadDirectory(rfs, localSrc, remoteDst)
+		} else {
+			err = remotefs.Upload(rfs, localSrc, remoteDst)
+		}
 		return libtask.TaskOutput{
 			Error: err,
 		}
-	} else if taskParams.RemoteSrc != "" && taskParams.LocalDst != "" {
+	} else if t.RemoteSrc != "" && t.LocalDst != "" {
 		// Render TaskCp.RemoteSrc string
 		remoteSrc, err := template_utils.RenderTemplateToString(
-			taskParams.RemoteSrc, "TaskCp.RemoteSrc", vars,
+			t.RemoteSrc, "TaskCp.RemoteSrc", vars,
 		)
 		if err != nil {
 			return libtask.TaskOutput{
@@ -65,7 +83,7 @@ func Run(
 
 		// Render TaskCp.LocalDst string
 		localDst, err := template_utils.RenderTemplateToString(
-			taskParams.LocalDst, "TaskCp.LocalDst", vars,
+			t.LocalDst, "TaskCp.LocalDst", vars,
 		)
 		if err != nil {
 			return libtask.TaskOutput{
@@ -73,8 +91,19 @@ func Run(
 			}
 		}
 
-		// do scp
-		err = exec_utils.SCPRemoteToLocal(taskInput, remoteSrc, localDst)
+		// Download
+		info, err := rfs.Stat(remoteSrc)
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+		if info.IsDir() {
+			err = remotefs.DownloadDirectory(rfs, remoteSrc, localDst)
+		} else {
+			err = remotefs.Download(rfs, remoteSrc, localDst)
+		}
+
 		return libtask.TaskOutput{
 			Error: err,
 		}

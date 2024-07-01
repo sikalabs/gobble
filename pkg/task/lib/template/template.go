@@ -1,27 +1,26 @@
 package template
 
 import (
-	"fmt"
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/printer"
+	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	text_template "text/template"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/cp"
-	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
-type TaskTemplate struct {
+type Task struct {
+	libtask.BaseTask
 	Path      string      `yaml:"path"`
 	Template  string      `yaml:"template"`
 	ExtraData interface{} `yaml:"extra_data"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskTemplate,
-) libtask.TaskOutput {
-	tmpl, err := text_template.New("template").Parse(taskParams.Template)
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
+	tmpl, err := text_template.New("template").Parse(t.Template)
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
@@ -35,8 +34,8 @@ func Run(
 	}
 	err = tmpl.Execute(tmpFile, map[string]interface{}{
 		"Config": taskInput.Config,
-		"Vars":   taskInput.Vars,
-		"Extra":  taskParams.ExtraData,
+		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
+		"Extra":  t.ExtraData,
 	})
 	if err != nil {
 		return libtask.TaskOutput{
@@ -44,23 +43,43 @@ func Run(
 		}
 	}
 	if taskInput.Dry {
-		fmt.Println("cat > " + tmpFile.Name() + " <<EOF")
-		exec_utils.RawExecStdout("cat", tmpFile.Name())
-		fmt.Println("EOF")
+
+		// Ensure the data is written and file is closed for reading
+		err = tmpFile.Close()
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+
+		// Read the content of the temporary file
+		content, err := os.ReadFile(tmpFile.Name())
+		if err != nil {
+			return libtask.TaskOutput{
+				Error: err,
+			}
+		}
+		format := "--------------------\n%s\n--------------------\n"
+		printer.GlobalPrinter.Print(format, string(content))
 	}
-	out := cp.Run(taskInput, cp.TaskCp{
+
+	//cp Task
+	cpTask := cp.Task{
+		BaseTask: libtask.BaseTask{
+			Name: t.Name,
+		},
 		LocalSrc:  tmpFile.Name(),
-		RemoteDst: taskParams.Path,
-	})
+		RemoteDst: t.Path,
+	}
+
+	out := cpTask.Run(taskInput, host)
 	if out.Error != nil {
 		return libtask.TaskOutput{
 			Error: out.Error,
 		}
 	}
-	out = chmod.Run(taskInput, chmod.TaskChmod{
-		Path: taskParams.Path,
-		Perm: "644",
-	})
+	chmodTask := chmod.Task{Path: t.Path, Perm: "644"}
+	out = chmodTask.Run(taskInput, host)
 	if out.Error != nil {
 		return libtask.TaskOutput{
 			Error: out.Error,

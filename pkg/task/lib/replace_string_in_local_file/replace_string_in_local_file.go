@@ -1,7 +1,8 @@
 package replace_string_in_local_file
 
 import (
-	"io/ioutil"
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	"strings"
 
@@ -9,24 +10,22 @@ import (
 	"github.com/sikalabs/gobble/pkg/utils/template_utils"
 )
 
-type TaskReplaceStringInLocalFile struct {
+type Task struct {
+	libtask.BaseTask
 	Path    string `yaml:"path"`
 	Find    string `yaml:"find"`
 	Replace string `yaml:"replace"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskReplaceStringInLocalFile,
-) libtask.TaskOutput {
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
 	vars := map[string]interface{}{
 		"Config": taskInput.Config,
-		"Vars":   taskInput.Vars,
+		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
 	}
 
 	// Render find string
 	find, err := template_utils.RenderTemplateToString(
-		taskParams.Find, "TaskReplaceStringInLocalFile.Find", vars,
+		t.Find, "TaskReplaceStringInLocalFile.Find", vars,
 	)
 	if err != nil {
 		return libtask.TaskOutput{
@@ -36,7 +35,7 @@ func Run(
 
 	// Render replace string
 	replace, err := template_utils.RenderTemplateToString(
-		taskParams.Replace, "TaskReplaceStringInLocalFile.Replace", vars,
+		t.Replace, "TaskReplaceStringInLocalFile.Replace", vars,
 	)
 	if err != nil {
 		return libtask.TaskOutput{
@@ -45,7 +44,7 @@ func Run(
 	}
 
 	err = replaceStringInFile(
-		taskParams.Path,
+		t.Path,
 		find,
 		replace,
 	)
@@ -65,7 +64,7 @@ func replaceStringInFile(filename, searchStr, replaceStr string) error {
 	newContent := strings.ReplaceAll(string(content), searchStr, replaceStr)
 
 	// write the updated content back to the file
-	err = ioutil.WriteFile(filename, []byte(newContent), 0644)
+	err = os.WriteFile(filename, []byte(newContent), 0644)
 	if err != nil {
 		return err
 	}

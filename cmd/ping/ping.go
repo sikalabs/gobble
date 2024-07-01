@@ -1,22 +1,21 @@
 package ping
 
 import (
-	"bufio"
-	"fmt"
-	"io"
-	"log"
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/logger"
+	"github.com/sikalabs/gobble/pkg/run"
+	ping "github.com/sikalabs/gobble/pkg/task/lib/ping"
 	"os"
 
-	"github.com/mohae/deepcopy"
 	"github.com/sikalabs/gobble/cmd/root"
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"github.com/sikalabs/gobble/pkg/task/lib/echo"
 	"github.com/spf13/cobra"
-	"gopkg.in/yaml.v2"
 )
 
 var FlagConfigFilePath string
+
+// TODO Reimplement ping as a task
 
 var Cmd = &cobra.Command{
 	Use:   "ping",
@@ -24,57 +23,40 @@ var Cmd = &cobra.Command{
 	Args:  cobra.NoArgs,
 	Run: func(c *cobra.Command, args []string) {
 		shellReturnCode := 0
-		conf, err := readConfigFile(FlagConfigFilePath)
+		conf, err := config.ReadConfigFile(FlagConfigFilePath)
 		if err != nil {
-			log.Fatalln(err)
+			logger.Log.Fatal(err)
 		}
 
-		if conf.Meta.SchemaVersion != 3 {
-			log.Fatalln(fmt.Errorf("unsupported schema version: %d", conf.Meta.SchemaVersion))
+		if conf.Meta.SchemaVersion != 4 {
+			logger.Log.Fatalf("unsupported schema version: %d", conf.Meta.SchemaVersion)
 		}
 
-		conf.AllHosts = conf.Hosts
-
-		for hostAliasName, hostAliases := range conf.HostsAliases {
-			for _, hostAlias := range hostAliases {
-				conf.AllHosts[hostAliasName] = append(conf.AllHosts[hostAliasName], conf.Hosts[hostAlias]...)
-			}
+		//Initialize host connections
+		targets, err := host.InitializeHosts(conf.RigHosts, conf.HostsAliases)
+		if err != nil {
+			logger.Log.Fatal(err)
 		}
 
-		allHosts := map[string]config.ConfigHost{}
-
-		for _, hosts := range conf.AllHosts {
-			for _, host := range hosts {
-				allHosts[host.SSHTarget] = host
-			}
+		task := ping.Task{
+			BaseTask: libtask.BaseTask{
+				Name: "ping all hosts",
+			},
+		}
+		ti := libtask.TaskInput{
+			Config: conf,
+			Sudo:   false,
+			Vars:   conf.Global.Vars,
+			Dry:    false,
 		}
 
-		for _, host := range allHosts {
-			ti := libtask.TaskInput{
-				SSHTarget:               host.SSHTarget,
-				SSHPassword:             host.SSHPassword,
-				SSHOptions:              host.SSHOptions,
-				SudoPassword:            host.SudoPassword,
-				Config:                  conf,
-				NoStrictHostKeyChecking: conf.Global.NoStrictHostKeyChecking,
-				Sudo:                    false,
-				Vars:                    mergeMaps(conf.Global.Vars, host.Vars),
-				Dry:                     false,
-				Quiet:                   false,
-			}
-			taskParams := echo.TaskEcho{
-				Message: "ping",
-			}
-
-			fmt.Printf("Ping %s using SSH ...", host.SSHTarget)
-			out := echo.Run(ti, taskParams)
-			isOK := out.Error == nil
-			if isOK {
-				fmt.Printf(" OK\n")
-			} else {
-				fmt.Printf(" ERR\n")
-				shellReturnCode = 1
-			}
+		out := run.DispatchTask(&task, ti, targets)
+		isOK := out.Error == nil
+		if isOK {
+			logger.Log.Printf("Hosts are OK")
+		} else {
+			logger.Log.Errorf("Hosts are not reachable")
+			shellReturnCode = 1
 		}
 		os.Exit(shellReturnCode)
 	},
@@ -89,42 +71,4 @@ func init() {
 		"gobblefile.yml",
 		"Path to config file, \"-\" for STDIN",
 	)
-}
-
-func readConfigFile(configFilePath string) (config.Config, error) {
-	var buf []byte
-	var err error
-	c := config.Config{}
-
-	if configFilePath == "-" {
-		// Read from stdin
-		buf, err = io.ReadAll(bufio.NewReader(os.Stdin))
-		if err != nil {
-			return c, err
-		}
-	} else {
-		// Read from file
-		buf, err = os.ReadFile(configFilePath)
-		if err != nil {
-			return c, err
-		}
-	}
-
-	_ = yaml.Unmarshal(buf, &c)
-	if err != nil {
-		return c, err
-	}
-
-	return c, nil
-}
-
-func mergeMaps(m1, m2 map[string]interface{}) map[string]interface{} {
-	if m1 == nil {
-		m1 = make(map[string]interface{})
-	}
-	deepCopyM1 := deepcopy.Copy(m1).(map[string]interface{})
-	for k, v := range m2 {
-		deepCopyM1[k] = v
-	}
-	return deepCopyM1
 }

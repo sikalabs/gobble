@@ -2,57 +2,57 @@ package task
 
 import (
 	"fmt"
-
+	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"github.com/sikalabs/gobble/pkg/task/lib/apt_install"
 	"github.com/sikalabs/gobble/pkg/task/lib/authorized_key"
 	"github.com/sikalabs/gobble/pkg/task/lib/chmod"
 	"github.com/sikalabs/gobble/pkg/task/lib/command"
 	"github.com/sikalabs/gobble/pkg/task/lib/cp"
-	"github.com/sikalabs/gobble/pkg/task/lib/echo"
+	"github.com/sikalabs/gobble/pkg/task/lib/ping"
+	"github.com/sikalabs/gobble/pkg/task/lib/pkg_manager"
 	"github.com/sikalabs/gobble/pkg/task/lib/print"
-	rsilf "github.com/sikalabs/gobble/pkg/task/lib/replace_string_in_local_file"
+	"github.com/sikalabs/gobble/pkg/task/lib/replace_string_in_local_file"
 	"github.com/sikalabs/gobble/pkg/task/lib/template"
 )
 
-type Task struct {
-	Name                         string                             `yaml:"name"`
-	Echo                         echo.TaskEcho                      `yaml:"echo"`
-	AptInstall                   apt_install.TaskAptInstall         `yaml:"apt_install"`
-	Cp                           cp.TaskCp                          `yaml:"cp"`
-	Template                     template.TaskTemplate              `yaml:"template"`
-	Command                      command.TaskCommand                `yaml:"command"`
-	Chmod                        chmod.TaskChmod                    `yaml:"chmod"`
-	Print                        print.TaskPrint                    `yaml:"print"`
-	AuthorizedKey                authorized_key.TaskAuthorizedKey   `yaml:"authorized_key"`
-	TaskReplaceStringInLocalFile rsilf.TaskReplaceStringInLocalFile `yaml:"replace_string_in_local_file"`
+// Task is the interface that all tasks need to implement.
+type Task interface {
+	Run(input libtask.TaskInput, host *host.Host) libtask.TaskOutput
+	GetName() string
+	SetName(name string)
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	task Task,
-) libtask.TaskOutput {
-	switch {
-	case task.AptInstall.Name != "":
-		return apt_install.Run(taskInput, task.AptInstall)
-	case task.Echo.Message != "":
-		return echo.Run(taskInput, task.Echo)
-	case task.Cp.LocalSrc != "" || task.Cp.RemoteSrc != "":
-		return cp.Run(taskInput, task.Cp)
-	case task.Template.Path != "":
-		return template.Run(taskInput, task.Template)
-	case task.Command.Cmd != "":
-		return command.Run(taskInput, task.Command)
-	case task.Chmod.Path != "":
-		return chmod.Run(taskInput, task.Chmod)
-	case task.Print.Template != "":
-		return print.Run(taskInput, task.Print)
-	case task.AuthorizedKey.Key != "":
-		return authorized_key.Run(taskInput, task.AuthorizedKey)
-	case task.TaskReplaceStringInLocalFile.Path != "":
-		return rsilf.Run(taskInput, task.TaskReplaceStringInLocalFile)
+// Constructor is a function signature for task constructors.
+type Constructor func() Task
+
+// Registry maps a task type name to its constructor.
+var Registry = make(map[string]Constructor)
+
+// RegisterTask adds a new task type to the registry.
+func RegisterTask(name string, constructor Constructor) {
+	if _, exists := Registry[name]; exists {
+		panic(fmt.Sprintf("task type %q is already registered", name))
 	}
-	return libtask.TaskOutput{
-		Error: fmt.Errorf("task \"%s\" not found", task.Name),
+	Registry[name] = constructor
+}
+
+// NewTask creates a new task by type name.
+func NewTask(typeName string) (Task, error) {
+	constructor, ok := Registry[typeName]
+	if !ok {
+		return nil, fmt.Errorf("no task registered with type %q", typeName)
 	}
+	return constructor(), nil
+}
+
+func init() {
+	RegisterTask("command", func() Task { return &command.Task{} })
+	RegisterTask("authorized_key", func() Task { return &authorized_key.Task{} })
+	RegisterTask("chmod", func() Task { return &chmod.Task{} })
+	RegisterTask("replace_string_in_local_file", func() Task { return &replace_string_in_local_file.Task{} })
+	RegisterTask("print", func() Task { return &print.Task{} })
+	RegisterTask("template", func() Task { return &template.Task{} })
+	RegisterTask("pkg_manager", func() Task { return &pkg_manager.Task{} })
+	RegisterTask("ping", func() Task { return &ping.Task{} })
+	RegisterTask("cp", func() Task { return &cp.Task{} })
 }

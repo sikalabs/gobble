@@ -1,23 +1,22 @@
 package print
 
 import (
-	"fmt"
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/printer"
+	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	text_template "text/template"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"github.com/sikalabs/gobble/pkg/utils/exec_utils"
 )
 
-type TaskPrint struct {
+type Task struct {
+	libtask.BaseTask
 	Template string `yaml:"template"`
 }
 
-func Run(
-	taskInput libtask.TaskInput,
-	taskParams TaskPrint,
-) libtask.TaskOutput {
-	tmpl, err := text_template.New("template").Parse(taskParams.Template)
+func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOutput {
+	tmpl, err := text_template.New("template").Parse(t.Template)
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
@@ -32,7 +31,7 @@ func Run(
 	defer os.Remove(tmpFile.Name())
 	err = tmpl.Execute(tmpFile, map[string]interface{}{
 		"Config": taskInput.Config,
-		"Vars":   taskInput.Vars,
+		"Vars":   utils.MergeMaps(taskInput.Vars, host.Vars),
 	})
 	if err != nil {
 		return libtask.TaskOutput{
@@ -40,21 +39,23 @@ func Run(
 		}
 	}
 
-	if taskInput.Quiet {
-		fmt.Println("cat <<EOF")
-	}
-
-	fmt.Println("OUTPUT:")
-	err = exec_utils.RawExecStdout("cat", tmpFile.Name())
+	// Ensure the data is written and file is closed for reading
+	err = tmpFile.Close()
 	if err != nil {
 		return libtask.TaskOutput{
 			Error: err,
 		}
 	}
 
-	if taskInput.Quiet {
-		fmt.Println("EOF")
+	// Read the content of the temporary file
+	content, err := os.ReadFile(tmpFile.Name())
+	if err != nil {
+		return libtask.TaskOutput{
+			Error: err,
+		}
 	}
+	format := "OUTPUT:\n--------------------\n%s\n--------------------\n"
+	printer.GlobalPrinter.Print(format, string(content))
 
 	return libtask.TaskOutput{
 		Error: nil,
