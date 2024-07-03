@@ -4,11 +4,12 @@ import (
 	"bytes"
 	"errors"
 	"fmt"
+	"os"
+	"path"
+
 	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"os"
-	"path"
 )
 
 type Task struct {
@@ -23,8 +24,6 @@ func (t *Task) Run(taskInput libtask.TaskInput, host *host.Host) libtask.TaskOut
 		rfs = remotefs.NewFS(host.Client.Sudo())
 	}
 
-	if rfs.FileExist("~/.ssh/authorized_keys") {
-	}
 	sshDir := path.Join(rfs.UserHomeDir(), ".ssh")
 	authKeysFile := path.Join(sshDir, "authorized_keys")
 

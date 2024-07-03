@@ -2,8 +2,9 @@ package yaml_utils
 
 import (
 	"fmt"
-	"github.com/sikalabs/gobble/pkg/logger"
 	"os"
+
+	"github.com/sikalabs/gobble/pkg/logger"
 
 	"gopkg.in/yaml.v3"
 )
@@ -14,9 +15,9 @@ func MergeYAMLs(paths []string) {
 	data := []byte{}
 
 	for _, path := range paths {
-		file, err := os.ReadFile(string(path))
+		file, err := os.ReadFile(path)
 		if err != nil {
-			logger.Log.Fatalf("Failed to read %s: %v", string(path), err)
+			logger.Log.Fatalf("Failed to read %s: %v", path, err)
 		}
 		data = append(data, file...)
 	}

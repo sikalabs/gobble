@@ -1,10 +1,11 @@
 package replace_string_in_local_file
 
 import (
-	"github.com/sikalabs/gobble/pkg/host"
-	"github.com/sikalabs/gobble/pkg/utils"
 	"os"
 	"strings"
+
+	"github.com/sikalabs/gobble/pkg/host"
+	"github.com/sikalabs/gobble/pkg/utils"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/utils/template_utils"

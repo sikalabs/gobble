@@ -3,6 +3,8 @@ package host
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/k0sproject/rig/v2"
 	"github.com/k0sproject/rig/v2/protocol"
 	"github.com/k0sproject/rig/v2/protocol/localhost"
@@ -12,7 +14,6 @@ import (
 	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/sudo"
 	go_ssh "golang.org/x/crypto/ssh"
-	"time"
 )
 
 type Targets map[string][]*Host

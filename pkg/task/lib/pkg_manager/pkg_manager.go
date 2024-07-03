@@ -3,9 +3,10 @@ package pkg_manager
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"time"
 )
 
 type Task struct {

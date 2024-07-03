@@ -2,6 +2,7 @@ package run
 
 import (
 	"fmt"
+
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
@@ -22,13 +23,12 @@ func RunFromFile(
 		return err
 	}
 
-	return Run(c, dryRun, quietOutput, onlyTags, skipTags)
+	return Run(c, dryRun, onlyTags, skipTags)
 }
 
 func Run(
 	c *config.Config,
 	dryRun bool,
-	quietOutput bool,
 	onlyTags []string,
 	skipTags []string,
 ) error {

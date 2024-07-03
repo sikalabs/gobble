@@ -2,10 +2,11 @@ package cp
 
 import (
 	"fmt"
+	"os"
+
 	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/utils"
-	"os"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/utils/template_utils"

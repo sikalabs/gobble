@@ -1,10 +1,11 @@
 package logger
 
 import (
-	"github.com/charmbracelet/log"
-	"github.com/muesli/termenv"
 	"log/slog"
 	"os"
+
+	"github.com/charmbracelet/log"
+	"github.com/muesli/termenv"
 )
 
 // Log is the global charmbracelet/log logger

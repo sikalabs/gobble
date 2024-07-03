@@ -2,11 +2,12 @@ package chmod
 
 import (
 	"fmt"
+	"io/fs"
+	"strconv"
+
 	"github.com/k0sproject/rig/v2/remotefs"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
-	"io/fs"
-	"strconv"
 )
 
 type Task struct {

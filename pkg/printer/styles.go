@@ -2,8 +2,9 @@ package printer
 
 import (
 	"fmt"
-	"github.com/charmbracelet/lipgloss"
 	"strconv"
+
+	"github.com/charmbracelet/lipgloss"
 )
 
 // Define styles for the printer

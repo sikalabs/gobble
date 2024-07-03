@@ -2,6 +2,7 @@ package task
 
 import (
 	"fmt"
+
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/task/lib/authorized_key"

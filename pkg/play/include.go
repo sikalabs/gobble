@@ -2,11 +2,12 @@ package play
 
 import (
 	"fmt"
-	"gopkg.in/yaml.v3"
 	"io"
 	"net/http"
 	"os"
 	"strings"
+
+	"gopkg.in/yaml.v3"
 )
 
 func GetPlaysFromIncludePlays(includePlays InludePlays) ([]Play, error) {

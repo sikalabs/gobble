@@ -1,11 +1,12 @@
 package ping
 
 import (
+	"os"
+
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/run"
 	ping "github.com/sikalabs/gobble/pkg/task/lib/ping"
-	"os"
 
 	"github.com/sikalabs/gobble/cmd/root"
 	"github.com/sikalabs/gobble/pkg/config"

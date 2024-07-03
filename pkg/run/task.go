@@ -1,13 +1,14 @@
 package run
 
 import (
+	"sync"
+
 	"github.com/sikalabs/gobble/pkg/config"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/task"
 	"golang.org/x/exp/slices"
-	"sync"
 )
 
 func DispatchTask(task task.Task, input libtask.TaskInput, targets host.Targets) libtask.TaskOutput {

@@ -3,11 +3,12 @@ package ping
 import (
 	"context"
 	"fmt"
+	"time"
+
 	"github.com/k0sproject/rig/v2/cmd"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/libtask"
 	"github.com/sikalabs/gobble/pkg/logger"
-	"time"
 )
 
 type Task struct {

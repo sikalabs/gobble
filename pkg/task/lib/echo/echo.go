@@ -3,12 +3,13 @@ package echo
 import (
 	"bytes"
 	"context"
+	"text/template"
+	"time"
+
 	"github.com/k0sproject/rig/v2/cmd"
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/utils"
-	"text/template"
-	"time"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 )

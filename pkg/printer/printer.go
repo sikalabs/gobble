@@ -8,7 +8,6 @@ import (
 
 // Printer provides a concurrency-safe way to print structured output for plays, tasks, and hosts.
 type Printer struct {
-	mu         sync.Mutex // Mutex to protect prints that should not interleave
 	playMu     sync.Mutex // Mutex for play-related prints
 	taskMu     sync.Mutex // Mutex for task-related prints
 	hostMu     sync.Mutex // Mutex for host-related prints
@@ -56,7 +55,7 @@ func (p *Printer) PrintPlay(play string) {
 	if p.verbosity > 0 {
 		playIndex := atomic.AddInt64(&p.playCount, 1) // Increment play count
 		p.playMu.Lock()
-		fmt.Printf(formatPlay(play, playIndex, p.totalPlays))
+		fmt.Print(formatPlay(play, playIndex, p.totalPlays))
 		p.playMu.Unlock()
 	}
 }
@@ -66,7 +65,7 @@ func (p *Printer) PrintTask(task string) {
 	if p.verbosity > 0 {
 		p.taskMu.Lock()
 		taskIndex := atomic.AddInt64(&p.taskCount, 1) // Increment task count
-		fmt.Printf(formatTask(task, taskIndex, p.totalTasks))
+		fmt.Print(formatTask(task, taskIndex, p.totalTasks))
 		p.taskMu.Unlock()
 	}
 }
@@ -76,7 +75,7 @@ func (p *Printer) PrintHost(host, protocol string) {
 	if p.verbosity > 0 {
 		p.hostMu.Lock()
 		hostIndex := atomic.AddInt64(&p.hostCount, 1) // Increment host count
-		fmt.Printf(formatHost(host, protocol, hostIndex, p.totalHosts))
+		fmt.Print(formatHost(host, protocol, hostIndex, p.totalHosts))
 		p.hostMu.Unlock()
 	}
 }
@@ -99,7 +98,7 @@ func (p *Printer) Print(format string, text ...interface{}) {
 func (p *Printer) PrintDeprecated(text string) {
 	if p.verbosity > 0 {
 		p.deprecated.Lock()
-		fmt.Printf(formatDeprecated(text))
+		fmt.Print(formatDeprecated(text))
 		p.deprecated.Unlock()
 
 	}

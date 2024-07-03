@@ -7,7 +7,7 @@ import (
 func LenTargets(targets host.Targets) int {
 	length := 0
 	for _, h := range targets {
-		for _, _ = range h {
+		for range h {
 			length++
 		}
 	}

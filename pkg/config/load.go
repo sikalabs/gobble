@@ -2,9 +2,10 @@ package config
 
 import (
 	"bufio"
-	"gopkg.in/yaml.v3"
 	"io"
 	"os"
+
+	"gopkg.in/yaml.v3"
 )
 
 func ReadConfigFile(configFilePath string) (*Config, error) {

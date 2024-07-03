@@ -1,11 +1,12 @@
 package print
 
 import (
+	"os"
+	text_template "text/template"
+
 	"github.com/sikalabs/gobble/pkg/host"
 	"github.com/sikalabs/gobble/pkg/printer"
 	"github.com/sikalabs/gobble/pkg/utils"
-	"os"
-	text_template "text/template"
 
 	"github.com/sikalabs/gobble/pkg/libtask"
 )

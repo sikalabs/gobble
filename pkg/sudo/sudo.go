@@ -3,6 +3,7 @@ package sudo
 import (
 	"errors"
 	"fmt"
+
 	"github.com/k0sproject/rig/v2/cmd"
 	"github.com/k0sproject/rig/v2/plumbing"
 	"github.com/k0sproject/rig/v2/sh/shellescape"
