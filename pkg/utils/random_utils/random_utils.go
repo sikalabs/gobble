@@ -7,10 +7,11 @@ import (
 
 func RandomString(length int) string {
 	const CHARS = "abcdefghijklmnopqrstuvwxyz0123456789"
-	rand.Seed(time.Now().UnixNano())
+	randSrc := rand.NewSource(time.Now().UnixNano())
+	randGen := rand.New(randSrc)
 	b := make([]byte, length)
 	for i := range b {
-		b[i] = CHARS[rand.Intn(len(CHARS))]
+		b[i] = CHARS[randGen.Intn(len(CHARS))]
 	}
 	return string(b)
 }
