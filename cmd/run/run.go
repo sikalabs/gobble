@@ -1,9 +1,8 @@
 package version
 
 import (
-	"log"
-
 	"github.com/sikalabs/gobble/cmd/root"
+	"github.com/sikalabs/gobble/pkg/logger"
 	"github.com/sikalabs/gobble/pkg/run"
 	"github.com/spf13/cobra"
 )
@@ -22,7 +21,7 @@ var Cmd = &cobra.Command{
 	Run: func(c *cobra.Command, args []string) {
 		err := run.RunFromFile(FlagConfigFilePath, FlagDryRun, FlagQuietOutput, FlagOnlyTags, FlagSkipTags)
 		if err != nil {
-			log.Fatalln(err)
+			logger.Log.Fatal(err)
 		}
 	},
 }
