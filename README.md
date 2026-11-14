@@ -1,3 +1,5 @@
+[SikaLabs (sikalabs.com)](https://sikalabs.com) | [Ondrej Sika (sika.io)](https://sika.io)
+
 # Gobble: Like Ansible but in Go
 
 ## What is Gobble?
