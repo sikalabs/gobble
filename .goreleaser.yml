@@ -1,3 +1,5 @@
+version: 2
+
 project_name: gobble
 
 before:
@@ -42,7 +44,7 @@ builds:
     binary: gobble
 
 archives:
-  - format: tar.gz
+  - formats: [ "tar.gz" ]
     name_template: "{{ .ProjectName }}_v{{ .Version }}_{{ .Os }}_{{ .Arch }}"
 
 release:
@@ -55,13 +57,13 @@ checksum:
 brews:
   -
     name: gobble
-    tap:
+    repository:
       owner: sikalabs
       name: homebrew-tap
     skip_upload: auto
     homepage: https://github.com/sikalabs/gobble
     url_template: "https://github.com/sikalabs/gobble/releases/download/{{ .Tag }}/{{ .ArtifactName }}"
-    folder: Formula
+    directory: Formula
     caveats: "How to use this binary: https://github.com/sikalabs/gobble"
     description: "gobble"
     install: |
@@ -89,7 +91,7 @@ dockers:
         - "--label=org.label-schema.name={{.ProjectName}}"
         - "--label=com.github.actions.name={{.ProjectName}}"
         - "--label=repository=https://github.com/sikalabs/gobble"
-        - "--label=maintainer=SikaLabs Opensource &lt;opensource@sikalabs.com&gt;"
+        - "--label=maintainer=SikaLabs Opensource <opensource@sikalabs.com>"
     - goos: linux
       goarch: arm64
       image_templates:
@@ -108,4 +110,4 @@ dockers:
         - "--label=org.label-schema.name={{.ProjectName}}"
         - "--label=com.github.actions.name={{.ProjectName}}"
         - "--label=repository=https://github.com/sikalabs/gobble"
-        - "--label=maintainer=SikaLabs Opensource &lt;opensource@sikalabs.com&gt;"
+        - "--label=maintainer=SikaLabs Opensource <opensource@sikalabs.com>"
