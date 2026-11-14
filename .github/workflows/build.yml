@@ -30,7 +30,7 @@ jobs:
           chmod +x upload-sikalabs-bin-linux-amd64
 
           cp dist/gobble_linux_amd64_v1/gobble gobble
-          cp dist/gobble_linux_amd64_v1/slr slr-linux-amd64
+          cp dist/gobble_linux_amd64_v1/gobble gobble-linux-amd64
           ./upload-sikalabs-bin-linux-amd64 gobble
           ./upload-sikalabs-bin-linux-amd64 gobble-linux-amd64
 
