@@ -1,2 +1,2 @@
-FROM debian:12-slim
+FROM debian:13-slim
 COPY gobble /usr/local/bin/
